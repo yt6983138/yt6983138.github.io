@@ -1,0 +1,24 @@
+﻿@page "/"
+@inject NavigationManager NavManager
+
+@code {
+	List<(string Id, string Name, string UriToGo)> Buttons = new()
+	{
+		("Index.GoTo.RksReaderEnchanced", "Rks Reader Enchanced", "/RksReaderEnchanced/"),
+		("Index.GoTo.MyGithubPage", "My Github User Page", "https://github.com/yt6983138")
+	};
+}
+<h1 id="IndexTitle">static/void's home page</h1>
+<div id="IndexButtonArea">
+	@foreach (var info in Buttons)
+	{
+		//<button class="Index.GoToButtons" id=@info.Id @onclick>@info.Name</button>
+		<button class="IndexGoToButtons" id=@info.Id @onclick="@(() => NavManager.NavigateTo(info.UriToGo))">@info.Name</button>
+	}
+</div>
+@code {
+	private void RedirectTo()
+	{
+		
+	}
+}

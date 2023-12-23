@@ -1,0 +1,26 @@
+
+#IndexTitle {
+    margin: auto auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 10px 5px 10px 5px;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.4);
+    width: fit-content;
+    height: fit-content;
+    border-radius: 5px;
+}
+
+#IndexButtonArea {
+    padding: 20px 0px 0px 0px;
+    outline: thin;
+    position: center;
+    width: 50%;
+    margin: auto auto;
+    display: grid;
+    justify-items: center;
+    gap: 20px;
+}
+
+.IndexGoToButtons {
+    padding: 5px 5px 5px 5px;
+}
