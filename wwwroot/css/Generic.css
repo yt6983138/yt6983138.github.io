@@ -1,22 +1,53 @@
 :root {
-    --ButtonBlurRadius: 5px;
-    height: 100%;
-    background-image: url(/Assets/Background/IndexBackground.png);
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
+    --ButtonBlurRadius: 3px;
+    --BorderColor: rgba(255, 255, 255, 0.5);
     color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 body {
     margin: 0;
-    backdrop-filter: blur(10px) brightness(0.9);
-    height: 100%;
     width: 100%;
     display: flow-root;
 }
-
+html {
+    height: 100%;
+}
+input[type=text] {
+    background-image: none;
+    background-color: rgba(0, 0, 0, 25%);
+    font-size: 22px;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    backdrop-filter: blur(var(--ButtonBlurRadius));
+    border: 1px solid;
+    border-color: var(--BorderColor);
+    border-radius: 3px;
+}
+input[type=file] {
+    background-image: none;
+    background-color: rgba(0, 0, 0, 25%);
+    font-size: 18px;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    backdrop-filter: blur(var(--ButtonBlurRadius));
+    border: 1px solid;
+    border-color: var(--BorderColor);
+    border-radius: 3px;
+}
 #app {
     padding: 20px 20px 20px 20px;
+}
+#Background {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    filter: blur(10px) brightness(0.9);
+    position:fixed;
+    width: 100%;
+    height:100%;
+    transform:scale(1.1);
+    z-index: -100;
 }
 
 button {
@@ -26,6 +57,43 @@ button {
     color: white;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     backdrop-filter: blur(var(--ButtonBlurRadius));
+    border: 1px solid;
+    border-color: var(--BorderColor);
+    border-radius: 3px;
+}
+table {
+    border-spacing: 15px, 10px;
+    border: 1px solid;
+    border-color: var(--BorderColor);
+    border-radius: 3px;
+    border-collapse: collapse;
+    background-color: rgba(0, 0, 0, 0.10);
+}
+td {
+    border: 1px solid;
+    border-color: var(--BorderColor);
+    border-collapse: collapse;
+    background-color: rgba(0, 0, 0, 0.15);
+    font-size: 18px;
+    padding: 5px 5px 5px 5px;
+}
+th {
+    border: 1px solid;
+    border-color: var(--BorderColor);
+    border-collapse: collapse;
+    background-color: rgba(0, 0, 0, 0.25);
+    font-size: 20px;
+    padding: 5px 5px 5px 5px;
+}
+label {
+    background-image: none;
+    background-color: rgba(0, 0, 0, 25%);
+    font-size: 22px;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    backdrop-filter: blur(var(--ButtonBlurRadius));
+    border-radius: 3px;
+    padding: 5px 10px 5px 10px;
 }
 #blazor-error-ui {
     background: lightyellow;

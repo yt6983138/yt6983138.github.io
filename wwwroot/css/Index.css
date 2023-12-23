@@ -8,6 +8,8 @@
     width: fit-content;
     height: fit-content;
     border-radius: 5px;
+    border: 1px solid;
+    border-color: rgba(0.5, 0.5, 0.5, 0.5);
 }
 
 #IndexButtonArea {
@@ -23,4 +25,8 @@
 
 .IndexGoToButtons {
     padding: 5px 5px 5px 5px;
+}
+
+#Background {
+    background-image: url(/Assets/Background/IndexBackground.png);
 }
