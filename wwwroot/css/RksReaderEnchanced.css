@@ -1,15 +1,15 @@
 
-#IndexTitle {
-    margin: auto auto;
+#Title > p, h1 {
+    margin: 5px 0px 5px 0px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     padding: 10px 5px 10px 5px;
-    text-align: center;
     background-color: rgba(0, 0, 0, 0.4);
     width: fit-content;
     height: fit-content;
-    border-radius: 5px;
-    border: 1px solid;
-    border-color: rgba(0.5, 0.5, 0.5, 0.5);
+    border-radius: 3px;
+}
+#Title {
+    margin: 0px 0px 0px 20px
 }
 table {
     margin: 20px 20px 20px 20px;
@@ -28,6 +28,12 @@ table {
 .InputBox {
     margin: 10px 10px 10px 10px;
 }
+.ButtonBox {
+    margin: 10px 10px 10px 10px;
+}
+#DivInputUploadSaveFile {
+    margin: 10px 10px 10px -10px !important;
+}
 #CustomUpload {
     background-image: none;
     background-color: rgba(0, 0, 0, 25%);
@@ -39,6 +45,12 @@ table {
     border-color: var(--BorderColor);
     border-radius: 3px;
 }
+#DivLabelStatus {
+    float: right;
+}
+#DivButtonReset {
+    width: fit-content;
+}
 input[type=file] {
     display: none !important;
 }
@@ -47,7 +59,6 @@ label {
 }
 #Div.Label.Status {
     z-index: -1;
-
 }
 
 #IndexButtonArea {

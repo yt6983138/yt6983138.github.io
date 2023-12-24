@@ -95,6 +95,9 @@ label {
     border-radius: 3px;
     padding: 5px 10px 5px 10px;
 }
+a[href] {
+    color: rgb(192, 192, 255);
+}
 #blazor-error-ui {
     background: lightyellow;
     bottom: 0;
