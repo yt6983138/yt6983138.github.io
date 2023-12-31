@@ -1,9 +1,10 @@
 ﻿/**
  * Decrypt from base64 encoded string
+ * !! OBSOLETE !!
  * @param {string} base64EncodedString
  * @returns {string} Returns raw string
  */
- function Decrypt(base64EncodedString) { // ... this needs to be export function, fuck this
+ function Decrypt(base64EncodedString) {
     // bruh no fucking way ai did better than me, from lchzh :>
     let rcon = Array.from(new Array(256), (e, t) =>
         128 & t ? ((t << 1) & 255) ^ 27 : t << 1
@@ -48,7 +49,7 @@
         ],
         decodedString = atob(base64EncodedString)
             .split("")
-            .map((e) => e.charCodeAt());
+             .map((e) => e.charCodeAt());
     return new TextDecoder().decode(
         Uint8Array.from(
             (function (cipherText) {
@@ -80,6 +81,7 @@
                 function shiftRows(state) {
                     let tempArray = Array.from(new Array(16), (e, t) => (13 * t) & 15),
                         tempState = state.slice();
+                    console.log(tempArray);
                     for (let i = 0; i < 16; i++) state[i] = tempState[tempArray[i]];
                 }
                 function addRoundKey(state, roundKey) {
