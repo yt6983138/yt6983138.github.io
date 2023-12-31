@@ -349,23 +349,22 @@
 </div>
 @if (SubWindowOpen)
 {
-	bool renderChart = false;
 	<div id="SubWindow" @onclick=CloseSubWindow>
 		@switch (Content)
 		{
 			case SubWindowContent.Log:
-				<div id="LogBox" class="Windows" onclick="event.stopPropagation()">
+				<div id="LogBox" class="Windows" @onclick:stopPropagation=true>
 					<img id="ButtonLogBoxClose" class="WindowClose" @onclick="CloseSubWindow" src="/Assets/Generic/Close.svg"></img>
 					<textarea id="LogTextarea" readonly>
 						@foreach (string str in PageLogger.AllLogs)
 						{
 							@str
 						}
-								</textarea>
+																	</textarea>
 				</div>
 				break;
 			case SubWindowContent.Export:
-				<div id="ExportBox" class="Windows" onclick="event.stopPropagation()">
+				<div id="ExportBox" class="Windows" @onclick:stopPropagation=true>
 					<img id="ButtonExportBoxClose" class="WindowClose" @onclick="CloseSubWindow" src="/Assets/Generic/Close.svg"></img>
 					<div id="CountToExportGroup">
 						<label id="CountToExportLabel">Number of items to export, put 0 to export all</label>
@@ -377,12 +376,12 @@
 				</div>
 				break;
 			case SubWindowContent.Graph:
-				<div id="GraphBox" class="Windows" onclick="event.stopPropagation()">
-					<img id="ButtonExportBoxClose" class="WindowClose" @onclick="CloseSubWindow" src="/Assets/Generic/Close.svg"></img>
+				<div id="GraphBox" class="Windows" @onclick:stopPropagation=true>
 					<div id="Graph"></div>
+					<img id="ButtonGraphBoxClose" class="WindowClose" @onclick="CloseSubWindow" src="/Assets/Generic/Close.svg"></img>
+					<img src @onerror=InitChart>
 				</div>
 				// InitChart();
-				renderChart = true;
 				break;
 			default:
 				SubWindowOpen = false;
@@ -390,7 +389,6 @@
 				break;
 		}
 	</div>
-	if (renderChart) { InitChart(); renderChart = false; }
 }
 @code {
 	private enum SubWindowContent
@@ -471,10 +469,45 @@
 		for (int i = 0; i < count; i++)
 		{
 			ChartHelper.AddRow(
-				Names.ContainsKey(AllScores[i].Name) ? Names[AllScores[i].Name] : AllScores[i].Name, 
+				(Names.ContainsKey(AllScores[i].Name) ? Names[AllScores[i].Name] : AllScores[i].Name) + " " + AllScores[i].DiffcultyName,
 				AllScores[i].GetRksCalculated()
 			);
 		}
+		var options = new
+		{
+			legend = "none",
+			pointSize = 3,
+			backgroundColor = "transparent",
+			tooltip = new
+			{
+				isHtml = true
+			},
+			series = new object[]
+			{
+				new { color = "#fff" }
+			},
+			vAxis = new
+			{
+				maxValue = AllScores[1].GetRksCalculated(),
+				minValue = AllScores[19].GetRksCalculated(),
+				textStyle = new { color = "white" },
+				gridlineColor = "#404040"
+			},
+			hAxis = new
+			{
+				textStyle = new { color = "white" }
+			},
+			chartArea = new
+			{
+				width = "90%",
+				height = "70%",
+				top = 10,
+				right = 0
+			}
+		};
+
+		ChartHelper.Draw(options);
+		//ChartHelper.Draw(JsonConvert.DeserializeObject("{\"hAxis\":{\"title\":\"Horizontal Axis Label\"},\"vAxis\":{\"title\":\"Vertical Axis Label\"},\"title\":\"This is a Google Chart in Blazor\",\"legend\":{\"position\":\"none\"}}"));
 	}
 }
 @code {

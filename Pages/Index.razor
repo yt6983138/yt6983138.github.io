@@ -13,6 +13,6 @@
 	@foreach (var info in Buttons)
 	{
 		//<button class="Index.GoToButtons" id=@info.Id @onclick>@info.Name</button>
-		<button class="IndexGoToButtons" id=@info.Id @onclick="@(() => NavManager.NavigateTo(info.UriToGo))">@info.Name</button>
+		<button class="IndexGoToButtons" id=@info.Id @onclick="@(() => NavManager.NavigateTo(info.UriToGo, true))">@info.Name</button>
 	}
 </div>
