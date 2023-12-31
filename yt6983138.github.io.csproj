@@ -16,4 +16,8 @@
     <Folder Include="wwwroot\Assets\RksReaderIcons\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\Assets\Generic\DownloadHelper.js" />
+  </ItemGroup>
+
 </Project>
