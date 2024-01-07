@@ -1,0 +1,35 @@
+﻿@page "/WebPhiCharter/index.html"
+@using Blazor.Extensions;
+@using Blazor.Extensions.Canvas.Canvas2D;
+@using Newtonsoft.Json
+@using Microsoft.AspNetCore.Components.Forms
+@using System.Text
+@inject IJSRuntime JS
+@inject HttpClient Http
+
+@code {
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		this.canvasContext = await this.canvasReference.CreateCanvas2DAsync();
+		await this.canvasContext.SetFillStyleAsync("green");
+
+		await this.canvasContext.FillRectAsync(10, 100, 100, 100);
+
+		await this.canvasContext.SetFontAsync("48px serif");
+		await this.canvasContext.StrokeTextAsync("Hello Blazor!!!", 10, 100);
+	}
+
+	protected BECanvasComponent canvasReference;
+	private Canvas2DContext canvasContext;
+}
+
+
+<div id="ToolsRow">
+
+</div>
+<div id="CommandRow">
+
+</div>
+<div id="Bottom">
+	<BECanvas Width="300" Height="400" @ref=canvasReference></BECanvas>
+</div>

@@ -3,8 +3,12 @@
 @using Microsoft.AspNetCore.Components.Forms
 @using System.Xml
 @using System.Text
+@using yt6983138.github.io.RksReaderEnchanced;
+
 @inject IJSRuntime JS
 @inject HttpClient Http
+
+@*Todo: code clean up*@
 
 @code {
 	class Settings
@@ -152,6 +156,17 @@
 	public Dictionary<string, float[]> Diffcultys { get; private set; } = new();
 	public Dictionary<string, string> Names { get; private set; } = new();
 
+	//protected override Task OnAfterRenderAsync(bool firstRender)
+	//{
+	//	if (firstRender) ChartHelper = new(JS);
+	//	return base.OnAfterRenderAsync(firstRender);
+	//}
+	protected override void OnInitialized()
+	{
+		ChartHelper = new(JS);
+		downloadHelper = new(JS);
+		base.OnInitialized();
+	}
 	private static void LogWithExThrown(LoggerType type, string message, Exception ex)
 	{
 		PageLogger.Log(type, $"Exception thrown! {message}, Exception:");
@@ -169,11 +184,6 @@
 		}
 	}
 
-	protected override Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (firstRender) ChartHelper = new(JS);
-		return base.OnAfterRenderAsync(firstRender);
-	}
 
 	private async Task OnLoadSave(InputFileChangeEventArgs e)
 	{
@@ -186,8 +196,9 @@
 			{
 				SaveFileContent = await reader.ReadToEndAsync();
 			}
+			PageLogger.Log(LoggerType.Info, "Creating reader...");
 			XmlReader xmlReader = XmlReader.Create(new StringReader(SaveFileContent)); // cant use e.File.OpenReadStream
-			PageLogger.Log(LoggerType.Info, "Parsing Save...");
+			PageLogger.Log(LoggerType.Info, "Parsing XML...");
 			while (xmlReader.Read())
 			{
 				switch (xmlReader.NodeType)
@@ -342,9 +353,12 @@
 		<button id="ButtonOpenExport" @onclick=@(() => {Content = SubWindowContent.Export; SubWindowOpen = true;}) disabled=@(!Loaded)>Export</button>
 		<button id="ButtonOpenGraph" @onclick=@(() => {Content = SubWindowContent.Graph; SubWindowOpen = true;}) disabled=@(!Loaded)>Graph</button>
 		<button id="ButtonOpenLog" @onclick=@(() => {Content = SubWindowContent.Log; SubWindowOpen = true;})>Show logs</button>
-		@*<div id="DivLabelStatus">
-		<label id="LabelStatus">Status: @Status</label>
-		</div>*@
+		<div id="DivLabelStatus">
+			@{
+				string tmp = PageLogger.LatestLogMessageUnformatted;
+			}
+			<label id="LabelStatus">Last log: @((tmp.Length > 32) ? tmp.Substring(0, 29) + "..." : tmp)</label>
+		</div>
 	</div>
 </div>
 @if (SubWindowOpen)
@@ -354,18 +368,19 @@
 		{
 			case SubWindowContent.Log:
 				<div id="LogBox" class="Windows" @onclick:stopPropagation=true>
-					<img id="ButtonLogBoxClose" class="WindowClose" @onclick="CloseSubWindow" src="/Assets/Generic/Close.svg"></img>
+					<img id="ButtonLogBoxClose" class="WindowClose" @onclick="CloseSubWindow" src="/Assets/Generic/Icons/Close.svg"></img>
 					<textarea id="LogTextarea" readonly>
 						@foreach (string str in PageLogger.AllLogs)
 						{
-							@str
-						}
-																	</textarea>
+							@str // </textarea> below
+						} 
+																																									</textarea>
 				</div>
+				// ^ lmao auto format being too smart, also its a auto format counter lmao, more ctrl k+d, the more right it gets lmao
 				break;
 			case SubWindowContent.Export:
 				<div id="ExportBox" class="Windows" @onclick:stopPropagation=true>
-					<img id="ButtonExportBoxClose" class="WindowClose" @onclick="CloseSubWindow" src="/Assets/Generic/Close.svg"></img>
+					<img id="ButtonExportBoxClose" class="WindowClose" @onclick="CloseSubWindow" src="/Assets/Generic/Icons/Close.svg"></img>
 					<div id="CountToExportGroup">
 						<label id="CountToExportLabel">Number of items to export, put 0 to export all</label>
 						<input type="number" id="InputCountToExport" @bind="CountToExport" />
@@ -378,9 +393,10 @@
 			case SubWindowContent.Graph:
 				<div id="GraphBox" class="Windows" @onclick:stopPropagation=true>
 					<div id="Graph"></div>
-					<img id="ButtonGraphBoxClose" class="WindowClose" @onclick="CloseSubWindow" src="/Assets/Generic/Close.svg"></img>
+					<img id="ButtonGraphBoxClose" class="WindowClose" @onclick="CloseSubWindow" src="/Assets/Generic/Icons/Close.svg"></img>
 					<img src @onerror=InitChart>
 				</div>
+				// ^ very tricky way to get function invoked after auto rendering
 				// InitChart();
 				break;
 			default:
@@ -399,7 +415,8 @@
 		Graph = 2
 	}
 	private SubWindowContent Content = SubWindowContent.None;
-	private GoogleChartHelper ChartHelper;
+	private GoogleChartHelper? ChartHelper;
+	private DownloadHelper? downloadHelper;
 
 	private bool SubWindowOpen = false;
 	private async void ExportCSV()
@@ -421,7 +438,7 @@
 				AllScores[i].Status.ToString()
 			);
 		}
-		await Components.DownloadHelper.DownloadFromByte(Encoding.UTF8.GetBytes(builder.Compile()), "Export.csv", "text/csv", JS);
+		await downloadHelper!.DownloadFromByte(Encoding.UTF8.GetBytes(builder.Compile()), "Export.csv", "text/csv");
 	}
 	private async void ExportJSON()
 	{
@@ -432,7 +449,7 @@
 			sliced.Add(AllScores[i].Export(Names.ContainsKey(AllScores[i].Name) ? Names[AllScores[i].Name] : "Unknown"));
 		}
 		string content = JsonConvert.SerializeObject(sliced, Newtonsoft.Json.Formatting.Indented);
-		await Components.DownloadHelper.DownloadFromByte(Encoding.UTF8.GetBytes(content), "Export.json", "application/json", JS);
+		await downloadHelper!.DownloadFromByte(Encoding.UTF8.GetBytes(content), "Export.json", "application/json");
 	}
 	private async void ExportEncryptDataTable()
 	{
@@ -452,7 +469,7 @@
 			}
 			catch { }
 		}
-		await Components.DownloadHelper.DownloadFromByte(Encoding.UTF8.GetBytes(builder.Compile()), "ExportTable.csv", "text/csv", JS);
+		await downloadHelper!.DownloadFromByte(Encoding.UTF8.GetBytes(builder.Compile()), "ExportTable.csv", "text/csv");
 	}
 	private void CloseSubWindow()
 	{
@@ -461,14 +478,13 @@
 	}
 	private void InitChart()
 	{
-		PageLogger.Log(LoggerType.Info, "hi");
-		ChartHelper.Reset();
-		ChartHelper.Initalize("string", "Name", "number", "rks");
-		ChartHelper.CreateChart("Graph");
+		ChartHelper!.Reset();
+		ChartHelper!.Initalize("string", "Name", "number", "rks");
+		ChartHelper!.CreateChart("Graph");
 		int count = Math.Min(20, AllScores.Count);
 		for (int i = 0; i < count; i++)
 		{
-			ChartHelper.AddRow(
+			ChartHelper!.AddRow(
 				(Names.ContainsKey(AllScores[i].Name) ? Names[AllScores[i].Name] : AllScores[i].Name) + " " + AllScores[i].DiffcultyName,
 				AllScores[i].GetRksCalculated()
 			);
@@ -601,7 +617,6 @@
 		AllScores.Insert(0, highest.score);
 		AllScores.Sort((x, y) => y.GetRksCalculated().CompareTo(x.GetRksCalculated()));
 		AllScores.MoveItemAtIndexToFront(highest.index);
-		PageLogger.Log(LoggerType.Info, "Done Rendering!");
 	}
 }
 <div id="Scores" style="display: @(Loaded ? "unset" : "none")">

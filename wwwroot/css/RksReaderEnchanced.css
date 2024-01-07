@@ -192,6 +192,8 @@ table {
 
 .ButtonBox {
     margin: 10px 10px 10px 10px;
+    width: fit-content;
+
 }
 
 #DivInputUploadSaveFile {
@@ -246,5 +248,5 @@ label {
 }
 
 #Background {
-    background-image: url(/Assets/Background/IndexBackground.png);
+    background-image: url(/Assets/Generic/Background/IndexBackground.png);
 }
