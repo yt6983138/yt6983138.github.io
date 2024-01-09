@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 
 namespace yt6983138.github.io.Components.WebPhiCharter;
-public class InternalMoveEvent : IInternalEvents
+public class InternalMoveEvent : InternalEvent
 {
 	/// <summary>
 	/// x&y: 1 unit = 1 * screen(canvas) width/height
@@ -11,15 +11,8 @@ public class InternalMoveEvent : IInternalEvents
 	/// <inheritdoc cref="MovementStart" path="/summary"/>
 	/// </summary>
 	public required Vector2 MovementEnd { get; set; }
-	public required BeatInfo StartTime { get; set; }
-	public required BeatInfo EndTime { get; set; }
-	public InternalEventInterpolateMode InterpolateMode { get; set; } = InternalEventInterpolateMode.Linear;
-	/// <summary>
-	/// <inheritdoc/>
-	/// </summary>
-	public string? CustomInterpolateFunction { get; set; } = null;
 }
-public class InternalRotationEvent : IInternalEvents
+public class InternalRotationEvent : InternalEvent
 {
 	/// <summary>
 	/// euler angles
@@ -29,15 +22,8 @@ public class InternalRotationEvent : IInternalEvents
 	/// <inheritdoc cref="RotationStart" path="/summary"/>
 	/// </summary>
 	public required float RotationEnd { get; set; }
-	public required BeatInfo StartTime { get; set; }
-	public required BeatInfo EndTime { get; set; }
-	public InternalEventInterpolateMode InterpolateMode { get; set; } = InternalEventInterpolateMode.Linear;
-	/// <summary>
-	/// <inheritdoc/>
-	/// </summary>
-	public string? CustomInterpolateFunction { get; set; } = null;
 }
-public class InternalOpacityEvent : IInternalEvents
+public class InternalOpacityEvent : InternalEvent
 {
 	/// <summary>
 	/// 0 ~ 1, 0: fully transparent, 1: fully opaque 
@@ -47,15 +33,8 @@ public class InternalOpacityEvent : IInternalEvents
 	/// <inheritdoc cref="OpacityStart" path="/summary"/>
 	/// </summary>
 	public required float OpacityEnd { get; set; }
-	public required BeatInfo StartTime { get; set; }
-	public required BeatInfo EndTime { get; set; }
-	public InternalEventInterpolateMode InterpolateMode { get; set; } = InternalEventInterpolateMode.Linear;
-	/// <summary>
-	/// <inheritdoc/>
-	/// </summary>
-	public string? CustomInterpolateFunction { get; set; } = null;
 }
-public class InternalSpeedEvent : IInternalEvents
+public class InternalSpeedEvent : InternalEvent
 {
 	/// <summary>
 	/// 1 unit = 1 screen(canvas) height 
@@ -65,15 +44,25 @@ public class InternalSpeedEvent : IInternalEvents
 	/// <inheritdoc cref="OpacityStart" path="/summary"/>
 	/// </summary>
 	public required float SpeedEnd { get; set; }
-	public required BeatInfo StartTime { get; set; }
-	public required BeatInfo EndTime { get; set; }
-	public InternalEventInterpolateMode InterpolateMode { get; set; } = InternalEventInterpolateMode.Linear;
+	public override InternalEventInterpolateMode InterpolateMode { get { return InternalEventInterpolateMode.Linear; } set { return; } }
 	/// <summary>
 	/// <inheritdoc/>
 	/// </summary>
-	public string? CustomInterpolateFunction { get; set; } = null;
+	public override string? CustomInterpolateFunction { get { return "Unsupported Operation."; } set { return; } }
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="rangeMin">0 ~ 1</param>
+	/// <param name="rangeMax">0 ~ 1</param>
+	/// <returns></returns>
+	public float GetIntegral(float rangeMin = 0, float rangeMax = 1)
+	{
+		float delta = SpeedEnd - SpeedStart;
+		return ((SpeedStart + delta * rangeMin) + (SpeedStart + delta * rangeMax)) * 2;
+	}
 }
-public class InternalBPMEvent
+public class InternalBPMEvent : IInternalSpecialEvents
 {
 	public required float Bpm { get; set; }
 	public required BeatInfo StartTimeRelativeToLast { get; set; }

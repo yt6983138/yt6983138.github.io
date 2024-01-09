@@ -1,5 +1,6 @@
 ﻿using Blazor.Extensions;
 using Blazor.Extensions.Canvas.Canvas2D;
+using Microsoft.AspNetCore.Components;
 using System.Numerics;
 
 namespace yt6983138.github.io.Components.WebPhiCharter;
@@ -45,24 +46,6 @@ public class InternalNote
 	public void SetTime(in List<InternalBPMEvent> bpmEvents, in List<InternalSpeedEvent> speedEvents, BeatInfo Time)
 	{
 		throw new NotImplementedException();
-	}
-	public void Update(int timeMS, float elpasedNotePos, in Dictionary<int, InternalNoteAdditionalEvent> additionalEvents, in InternalJudgeLine parent, ref BECanvasComponent component, ref Canvas2DContext context)
-	{
-		if (!Verify()) throw new Exception("Invaild properties found!");
-		this.PosNow.X = this.PosX;
-		this.PosNow.Y = this.PosY - elpasedNotePos;
-
-		InternalNoteAdditionalEvent @event = default!;
-		if (this.ID != null)
-		{
-			additionalEvents.TryGetValue((int)this.ID, out @event!);
-		}
-		Draw(ref component, ref context, parent, timeMS, @event!);
-
-	}
-	public void Draw(ref BECanvasComponent component, ref Canvas2DContext context, in InternalJudgeLine parent, int timeMS, InternalNoteAdditionalEvent additionalEvent = default!)
-	{
-
 	}
 	/// <summary>
 	/// check if anything goes wrong

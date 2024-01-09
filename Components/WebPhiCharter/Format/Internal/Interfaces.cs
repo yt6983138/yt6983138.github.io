@@ -10,4 +10,9 @@ public interface IInternalEvents
 	/// todo: add further explaination 
 	/// </summary>
 	public string? CustomInterpolateFunction { get; set; }
+	public IInternalEvents QuickCopy();
+}
+public interface IInternalSpecialEvents
+{
+
 }
