@@ -11,6 +11,27 @@ public class InternalMoveEvent : InternalEvent
 	/// <inheritdoc cref="MovementStart" path="/summary"/>
 	/// </summary>
 	public required Vector2 MovementEnd { get; set; }
+
+#pragma warning disable CS0809
+	[Obsolete("Use InterpolateX/Y instead!")] // idk better attr
+	public override InternalEventInterpolateMode InterpolateMode { get => base.InterpolateMode; set => base.InterpolateMode = value; }
+	[Obsolete("Use InterpolateX/Y instead!")]
+	public override EaseMode EaseMode { get => base.EaseMode; set => base.EaseMode = value; }
+	[Obsolete("Use InterpolateX/Y instead!")]
+	public override string? CustomInterpolateFunction { get => base.CustomInterpolateFunction; set => base.CustomInterpolateFunction = value; }
+#pragma warning restore CS0809
+
+	public InternalMoveEvent(in List<InternalBPMEvent> bpmEvents, BeatInfo startTime, BeatInfo endTime)
+	{
+		SetStartTime(in bpmEvents, startTime);
+		SetEndTime(in bpmEvents, endTime);
+	}
+	public InternalEventInterpolateMode InterpolateModeX { get; set; } = InternalEventInterpolateMode.Linear;
+	public EaseMode EaseModeX { get; set; } = EaseMode.EaseBoth;
+	public string? CustomInterpolateFunctionX { get; set; } = null;
+	public InternalEventInterpolateMode InterpolateModeY { get; set; } = InternalEventInterpolateMode.Linear;
+	public EaseMode EaseModeY { get; set; } = EaseMode.EaseBoth;
+	public string? CustomInterpolateFunctionY { get; set; } = null;
 }
 public class InternalRotationEvent : InternalEvent
 {
@@ -22,6 +43,12 @@ public class InternalRotationEvent : InternalEvent
 	/// <inheritdoc cref="RotationStart" path="/summary"/>
 	/// </summary>
 	public required float RotationEnd { get; set; }
+
+	public InternalRotationEvent(in List<InternalBPMEvent> bpmEvents, BeatInfo startTime, BeatInfo endTime)
+	{
+		SetStartTime(in bpmEvents, startTime);
+		SetEndTime(in bpmEvents, endTime);
+	}
 }
 public class InternalOpacityEvent : InternalEvent
 {
@@ -33,6 +60,12 @@ public class InternalOpacityEvent : InternalEvent
 	/// <inheritdoc cref="OpacityStart" path="/summary"/>
 	/// </summary>
 	public required float OpacityEnd { get; set; }
+
+	public InternalOpacityEvent(in List<InternalBPMEvent> bpmEvents, BeatInfo startTime, BeatInfo endTime)
+	{
+		SetStartTime(in bpmEvents, startTime);
+		SetEndTime(in bpmEvents, endTime);
+	}
 }
 public class InternalSpeedEvent : InternalEvent
 {
@@ -50,6 +83,12 @@ public class InternalSpeedEvent : InternalEvent
 	/// </summary>
 	public override string? CustomInterpolateFunction { get { return "Unsupported Operation."; } set { return; } }
 
+	public InternalSpeedEvent(in List<InternalBPMEvent> bpmEvents, BeatInfo startTime, BeatInfo endTime)
+	{
+		SetStartTime(in bpmEvents, startTime);
+		SetEndTime(in bpmEvents, endTime);
+	}
+
 	/// <summary>
 	/// 
 	/// </summary>
@@ -59,13 +98,39 @@ public class InternalSpeedEvent : InternalEvent
 	public float GetIntegral(float rangeMin = 0, float rangeMax = 1)
 	{
 		float delta = SpeedEnd - SpeedStart;
-		return ((SpeedStart + delta * rangeMin) + (SpeedStart + delta * rangeMax)) * 2;
+		switch (InterpolateMode)
+		{
+			case InternalEventInterpolateMode.Linear:
+				return ((SpeedStart + delta * rangeMin) + (SpeedStart + delta * rangeMax)) * 2;
+			case InternalEventInterpolateMode.Log10:
+				throw new NotImplementedException();
+			case InternalEventInterpolateMode.Square:
+				throw new NotImplementedException();
+			case InternalEventInterpolateMode.Expo2:
+				throw new NotImplementedException();
+			case InternalEventInterpolateMode.Sine:
+				throw new NotImplementedException();
+			case InternalEventInterpolateMode.Cutoff:
+				throw new NotImplementedException();
+			case InternalEventInterpolateMode.Custom:
+			default:
+				throw new NotSupportedException("Custom interpolate mode not supported.");
+		}
+
 	}
 }
 public class InternalBPMEvent : IInternalSpecialEvents
 {
 	public required float Bpm { get; set; }
+	/// <summary>
+	/// using last bpm from last event
+	/// </summary>
 	public required BeatInfo StartTimeRelativeToLast { get; set; }
+
+	public object QuickCopy()
+	{
+		return this.MemberwiseClone();
+	}
 }
 public class InternalLineAdditionalEvent
 {
@@ -75,10 +140,12 @@ public class InternalNoteAdditionalEvent
 {
 	public bool IsFake { get; set; } = false;
 	public float Speed { get; set; } = 1;
+	public int VisibleSinceMS { get; set; } = 0;
+	public int VisibleTime { get; set; } = int.MaxValue;
 	public (bool? multitap, InternalNoteType? type) Texture { get; set; } = (null, null);
 	public string? CustomTexturePath { get; set; } = null;
-	public Vector2 Scale { get; set; } = Vector2.One;
-	public Matrix3x2 RenderTransform { get; set; } = new Matrix3x2(1, 0, 0, 1, 0, 0);
+	public Vector2? Scale { get; set; } = null;
+	public Matrix3x2? RenderTransform { get; set; } = null;
 	public Vector2 Anchor { get; set; } = new Vector2(0.5f, 0.5f);
 	public Vector2 Pivot { get; set; } = new Vector2(0.5f, 0.5f);
 }

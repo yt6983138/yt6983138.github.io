@@ -1,4 +1,6 @@
-﻿namespace yt6983138.github.io.Components.WebPhiCharter;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace yt6983138.github.io.Components.WebPhiCharter;
 public struct BeatInfo
 {
 	private int _numerator;
@@ -20,6 +22,7 @@ public struct BeatInfo
 
 	public static BeatInfo Zero { get { return new() { Beat = 0, DivisionLevel = 0, DivisionNumerator = 0 }; } }
 
+	public BeatInfo() { }
 	public int GetMS(float bpm)
 	{
 		if (DivisionLevel == 0) return (int)(bpm / 60 * Beat * 1000);
@@ -48,6 +51,14 @@ public struct BeatInfo
 			}
 		}
 		return sum;
+	}
+	public override bool Equals([NotNullWhen(true)] object? obj)
+	{
+		return base.Equals(obj);
+	}
+	public override int GetHashCode()
+	{
+		return base.GetHashCode();
 	}
 	public static bool operator <(BeatInfo first, BeatInfo second)
 	{
@@ -91,12 +102,20 @@ public struct BeatInfo
 		while (i < 0)
 		{
 			i += tmpDivision;
-			tmp.Beat++;
+			tmp.Beat--;
 		}
 		int gcd = Utils.GCD(tmpDivision, i);
 		tmp.DivisionLevel = tmpDivision / gcd;
 		tmp.DivisionNumerator = i / gcd;
 
 		return tmp;
+	}
+	public static BeatInfo operator *(BeatInfo first, BeatInfo second)
+	{
+		(int n, int d) one = (first.DivisionNumerator * first.DivisionLevel, first.DivisionLevel);
+		(int n, int d) two = (second.DivisionNumerator * second.DivisionLevel, second.DivisionLevel);
+		(int n, int d) combined = (one.n * two.d + two.n * one.d, one.d * two.d);
+		int gcd = Utils.GCD(combined.n, combined.d);
+		return new BeatInfo() { Beat = 0, DivisionLevel = combined.d / gcd, DivisionNumerator = combined.n / gcd };
 	}
 }

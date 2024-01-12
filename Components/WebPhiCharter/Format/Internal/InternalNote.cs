@@ -11,6 +11,7 @@ public class InternalNote
 	/// PosX 1 = 1 Screen width (canvas width)
 	/// </summary>
 	public required float PosX { get; set; }
+	public required bool IsDownSide { get; set; }
 	/// <summary>
 	/// PosY 1 = 1 Screen height (canvas height)
 	/// </summary>
@@ -27,36 +28,71 @@ public class InternalNote
 
 	public int? ID { get; set; } = null;
 
-	private Vector2 PosNow = Vector2.Zero;
-	private float RotationNow = 0;
-
 	public InternalNote(in List<InternalBPMEvent> bpmEvents, in List<InternalSpeedEvent> speedEvents, BeatInfo time, BeatInfo? holdLength = null)
 	{
-		SetTime(bpmEvents, speedEvents, time);
+		SetTime(in bpmEvents, in speedEvents, time);
 		if (holdLength != null)
 		{
-			SetHoldLength(bpmEvents, speedEvents, (BeatInfo)holdLength);
+			SetHoldLength(in bpmEvents, in speedEvents, (BeatInfo)holdLength);
 		}
 	}
 	// no auto properties sad
 	public void SetHoldLength(in List<InternalBPMEvent> bpmEvents, in List<InternalSpeedEvent> speedEvents, BeatInfo length)
 	{
-		throw new NotImplementedException();
+		int lengthTimeMS = (this.Time + length).GetMS(in bpmEvents) - this.TimeMS;
+		float integral = 0;
+		for (int i = 0; i < speedEvents.Count; i++)
+		{
+			var @event = speedEvents[i];
+			if (this.TimeMS + lengthTimeMS < @event.StartMS)
+			{
+				break; // |note| ... | event | timeline
+			}
+			if (@event.StartMS < this.TimeMS && this.TimeMS < @event.EndMS) // |      event      |
+			{                                                               //   | note ... | (length unknown)
+				float start = 1;
+				if (lengthTimeMS > @event.EndMS) // |      event      |
+				{                                //   | note ...         | (length exceeds event end time)
+					start = (float)(lengthTimeMS - @event.StartMS) / (@event.EndMS - @event.StartMS);
+				}
+				integral += @event.GetIntegral(rangeMin: start);
+			}
+			if (this.TimeMS < @event.StartMS && @event.EndMS < lengthTimeMS) //       | event |
+			{                                                                // | note ...        | (entirely larger than event)
+				integral += @event.GetIntegral();
+			}
+			if (this.TimeMS < @event.StartMS && @event.StartMS < lengthTimeMS && lengthTimeMS < @event.EndMS)
+			{
+				integral += @event.GetIntegral(0, (float)(lengthTimeMS - @event.StartMS) / (@event.EndMS - @event.StartMS));
+			}
+		}
+		this.HoldRenderLength = integral;
+		this.HoldLength = length;
 	}
 	public void SetTime(in List<InternalBPMEvent> bpmEvents, in List<InternalSpeedEvent> speedEvents, BeatInfo Time)
 	{
-		throw new NotImplementedException();
-	}
-	/// <summary>
-	/// check if anything goes wrong
-	/// </summary>
-	/// <returns>
-	/// false if something went wrong
-	/// </returns>
-	public bool Verify()
-	{
-		if (NoteType == InternalNoteType.Custom) return false;
-		return true;
-	}
+		int timeMS = Time.GetMS(in bpmEvents);
+		float integral = 0;
+		for (int i = 0; i < speedEvents.Count; i++)
+		{
+			var @event = speedEvents[i];
+			if (@event.EndMS < timeMS)
+			{
+				integral += @event.GetIntegral();
+			}
+			if (@event.StartMS < timeMS && timeMS < @event.EndMS)
+			{
+				integral += @event.GetIntegral(0, (float)(timeMS - @event.StartMS) / (@event.EndMS - @event.StartMS));
+			}
+			if (timeMS < @event.StartMS)
+			{
+				break;
+			}
+		}
+		this.PosY = integral;
+		this.Time = Time;
+		this.TimeMS = timeMS;
 
+		if (this.NoteType == InternalNoteType.Hold && this.HoldRenderLength > 0) SetHoldLength(in bpmEvents, in speedEvents, this.HoldLength);
+	}
 }
