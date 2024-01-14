@@ -95,4 +95,5 @@ public class InternalNote
 
 		if (this.NoteType == InternalNoteType.Hold && this.HoldRenderLength > 0) SetHoldLength(in bpmEvents, in speedEvents, this.HoldLength);
 	}
+	public object QuickCopy() => this.MemberwiseClone();
 }

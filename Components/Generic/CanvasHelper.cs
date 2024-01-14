@@ -40,7 +40,7 @@ public class CanvasHelper
 	private string _wordSpacing = "0px";
 
 	[Inject]
-	private IJSRuntime? runtime { get; set; }
+	public IJSRuntime runtime { get; set; }
 	private string ID = "";
 	#endregion
 
@@ -60,7 +60,7 @@ public class CanvasHelper
 	public string LetterSpacing { get { return _letterSpacing; } set { _letterSpacing = value; runtime!.InvokeVoidAsync("AssignCtxProperty", ID, "letterSpacing", _letterSpacing); } }
 	public string LineCap { get { return _lineCap; } set { _lineCap = value; runtime!.InvokeVoidAsync("AssignCtxProperty", ID, "lineCap", _lineCap); } }
 	public float LineDashOffset { get { return _lineDashOffset; } set { _lineDashOffset = value; runtime!.InvokeVoidAsync("AssignCtxProperty", ID, "lineDashOffset", _lineDashOffset); } }
-	public  string LineJoin { get { return _lineJoin; } set { _lineJoin = value; runtime!.InvokeVoidAsync("AssignCtxProperty", ID, "lineJoin", _lineJoin); } }
+	public string LineJoin { get { return _lineJoin; } set { _lineJoin = value; runtime!.InvokeVoidAsync("AssignCtxProperty", ID, "lineJoin", _lineJoin); } }
 	public float LineWidth { get { return _lineWidth; } set { _lineWidth = value; runtime!.InvokeVoidAsync("AssignCtxProperty", ID, "lineWidth", _lineWidth); } }
 	public float MiterLimit { get { return _miterLimit; } set { _miterLimit = value; runtime!.InvokeVoidAsync("AssignCtxProperty", ID, "miterLimit", _miterLimit); } }
 	public float ShadowBlur { get { return _shadowBlur; } set { _shadowBlur = value; runtime!.InvokeVoidAsync("AssignCtxProperty", ID, "shadowBlur", _shadowBlur); } }
@@ -72,17 +72,24 @@ public class CanvasHelper
 	public string TextBaseline { get { return _textBaseline; } set { _textBaseline = value; runtime!.InvokeVoidAsync("AssignCtxProperty", ID, "textBaseline", _textBaseline); } }
 	public string TextRendering { get { return _textRendering; } set { _textRendering = value; runtime!.InvokeVoidAsync("AssignCtxProperty", ID, "textRendering", _textRendering); } }
 	public string WordSpacing { get { return _wordSpacing; } set { _wordSpacing = value; runtime!.InvokeVoidAsync("AssignCtxProperty", ID, "wordSpacing", _wordSpacing); } }
+
+	public CanvasHelper Default { get { return new(); } }
 	#endregion
 
 	#region Constructor
-	public CanvasHelper(string elementIdToCatch)
+	public CanvasHelper(string elementIdToCatch, IJSRuntime runtime)
 	{
+		this.runtime = runtime;
 		this.ID = Path.GetRandomFileName();
 		runtime!.InvokeVoidAsync("GetCanvasByElementID", elementIdToCatch, this.ID);
 	}
+	private CanvasHelper()
+	{
+		return;
+	}
 	#endregion
-	
-	private async void Run(string funcName, params object?[]? args)
+
+	private async Task Run(string funcName, params object?[]? args)
 	{
 		await runtime!.InvokeVoidAsync("RunCtxFunc", this.ID, funcName, args);
 	}
@@ -90,45 +97,47 @@ public class CanvasHelper
 	{
 		return await runtime!.InvokeAsync<T>("RunCtxFunc", this.ID, funcName, args);
 	}
+
 	#region Regular methods
-	public void Arc(float x, float y, float radius, float startAngle, float endAngle, bool counterClockwise = false) => Run("arc", x, y, radius, startAngle, endAngle, counterClockwise);
-	public void ArcTo(float x1, float y1, float x2, float y2, float radius) => Run("arcTo", x1, y1, x2, y2, radius);
-	public void BeginPath() => Run("beginPath");
-	public void BezierCurveTo(float cp1x, float cp1y, float cp2x, float cp2y, float x, float y) => Run("bezierCurveTo", cp1x, cp1y, cp2x, cp2y, x, y);
-	public void ClearRect(float x, float y, float width, float height) => Run("clearRect", x, y, width, height);
-	public void ClosePath() => Run("closePath");
-	public void Ellipse(float x, float y, float radiusX, float radiusY, float rotationRadian, float startAngle, float endAngle, bool counterClockwise = false) => Run("ellipse", x, y, radiusX, radiusY, rotationRadian, startAngle, endAngle, counterClockwise);
-	public void FillRect(float x, float y, float width, float height) => Run("fillRect", x, y, width, height);
-	public void FillText(string text, float x, float y, float maxWidth = float.MaxValue) => Run("fillText", text, x, y, maxWidth);
-	public void LineTo(float x, float y) => Run("lineTo", x, y);
-	public void MoveTo(float x, float y) => Run("moveTo", x, y);
-	public void QuadraticCurveTo(float cpx, float cpy, float x, float y) => Run("quadraticCurveTo", cpx, cpy, x, y);
-	public void Rect(float x, float y, float width, float height) => Run("rect", x, y, width, height);
-	public void Reset()
+	public async void Arc(float x, float y, float radius, float startAngle, float endAngle, bool counterClockwise = false) => await Run("arc", x, y, radius, startAngle, endAngle, counterClockwise);
+	public async void ArcTo(float x1, float y1, float x2, float y2, float radius) => await Run("arcTo", x1, y1, x2, y2, radius);
+	public async void BeginPath() => await Run("beginPath");
+	public async void BezierCurveTo(float cp1x, float cp1y, float cp2x, float cp2y, float x, float y) => await Run("bezierCurveTo", cp1x, cp1y, cp2x, cp2y, x, y);
+	public async void ClearRect(float x, float y, float width, float height) => await Run("clearRect", x, y, width, height);
+	public async void ClosePath() => await Run("closePath");
+	public async void Ellipse(float x, float y, float radiusX, float radiusY, float rotationRadian, float startAngle, float endAngle, bool counterClockwise = false) => await Run("ellipse", x, y, radiusX, radiusY, rotationRadian, startAngle, endAngle, counterClockwise);
+	public async void FillRect(float x, float y, float width, float height) => await Run("fillRect", x, y, width, height);
+	public async void FillText(string text, float x, float y, float maxWidth = float.MaxValue) => await Run("fillText", text, x, y, maxWidth);
+	public async void LineTo(float x, float y) => await Run("lineTo", x, y);
+	public async void MoveTo(float x, float y) => await Run("moveTo", x, y);
+	public async void QuadraticCurveTo(float cpx, float cpy, float x, float y) => await Run("quadraticCurveTo", cpx, cpy, x, y);
+	public async void Rect(float x, float y, float width, float height) => await Run("rect", x, y, width, height);
+	public async void Reset()
 	{
+		var tmp = Default;
 		foreach (FieldInfo info in this.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic))
 		{
-			if (info.Name == "runtime" || info.Name == "ID") continue;
-			info.SetValue(this, info.GetValue(default(CanvasHelper)));
+			if (info.Name == "<runtime>k__BackingField" || info.Name == "ID") continue;
+			info.SetValue(this, info.GetValue(tmp));
 		}
-		Run("reset");
+		await Run("reset");
 	}
-	public void ResetTransform() => Run("resetTransform");
-	public void Restore() => Run("restore");
-	public void Rotate(float rotationRadian) => Run("rotate", rotationRadian);
+	public async void ResetTransform() => await Run("resetTransform");
+	public async void Restore() => await Run("restore");
+	public async void Rotate(float rotationRadian) => await Run("rotate", rotationRadian);
 	public void RotateEuler(float rotationEuler) => Rotate(rotationEuler * (float)Math.PI / 180);
-	public void RoundRect(float x, float y, float width, float height, string radii) => Run("roundRect", x, y, width, height, radii);
-	public void Save() => Run("save");
-	public void Scale(float x, float y) => Run("scale", x, y);
-	public void SetLineDash(float[] dashes) => Run("setLineDash", dashes);
-	public void SetTransform(float m11, float m12, float m21, float m22, float m41, float m42) => Run("setTransform", m11, m12, m21, m22, m41, m42);
-	public void SetTransform(Matrix3x2 matrix) => Run("setTransform", matrix.M11, matrix.M12, matrix.M21, matrix.M22, matrix.M31, matrix.M32);
-	public void Stroke() => Run("stroke");
-	public void StrokeRect(float x, float y, float width, float height) => Run("strokeRect", x, y, width, height);
-	public void StrokeText(string text, float x, float y, float maxWidth = float.MaxValue) => Run("strokeText", text, x, y, maxWidth);
-	public void Transform(float m11, float m12, float m21, float m22, float m41, float m42) => Run("transform", m11, m12, m21, m22, m41, m42);
-	public void Transform(Matrix3x2 matrix) => Run("transform", matrix.M11, matrix.M12, matrix.M21, matrix.M22, matrix.M31, matrix.M32);
-	public void Translate(float x, float y) => Run("translate", x, y);
+	public async void RoundRect(float x, float y, float width, float height, string radii) => await Run("roundRect", x, y, width, height, radii);
+	public async void Save() => await Run("save");
+	public async void Scale(float x, float y) => await Run("scale", x, y);
+	public async void SetLineDash(float[] dashes) => await Run("setLineDash", dashes);
+	public async void SetTransform(float m11, float m12, float m21, float m22, float m41, float m42) => await Run("setTransform", m11, m12, m21, m22, m41, m42);
+	public async void SetTransform(Matrix3x2 matrix) => await Run("setTransform", matrix.M11, matrix.M12, matrix.M21, matrix.M22, matrix.M31, matrix.M32);
+	public async void Stroke() => await Run("stroke");
+	public async void StrokeRect(float x, float y, float width, float height) => await Run("strokeRect", x, y, width, height);
+	public async void StrokeText(string text, float x, float y, float maxWidth = float.MaxValue) => await Run("strokeText", text, x, y, maxWidth);
+	public async void Transform(float m11, float m12, float m21, float m22, float m41, float m42) => await Run("transform", m11, m12, m21, m22, m41, m42);
+	public async void Transform(Matrix3x2 matrix) => await Run("transform", matrix.M11, matrix.M12, matrix.M21, matrix.M22, matrix.M31, matrix.M32);
+	public async void Translate(float x, float y) => await Run("translate", x, y);
 	#region Not implemented
 	public void Fill() => throw new NotImplementedException();
 	public void Clip() => throw new NotImplementedException();
@@ -137,8 +146,21 @@ public class CanvasHelper
 	public void Stroke(object path) => throw new NotImplementedException();
 	#endregion
 	#endregion
+
 	#region Getters
 	public async Task<bool> IsContextLost() => await Run<bool>("isContextLost");
+	public async Task<(float Width, float Height)> GetCanvasSize()
+	{
+		return (await runtime!.InvokeAsync<float>("GetCanvasWidth", ID), await runtime!.InvokeAsync<float>("GetCanvasHeight", ID));
+	}
+	public async Task<(float Width, float Height)> GetImageSize(string id)
+	{
+		float w = 0;
+		float h = 0;
+		w = await runtime!.InvokeAsync<float>("GetImageWidth", id);
+		h = await runtime!.InvokeAsync<float>("GetImageHeight", id);
+		return (w, h);
+	}
 	#region Not implemented
 	public void GetContextAttributes() => throw new NotImplementedException();
 	public void GetImageData() => throw new NotImplementedException();
@@ -149,6 +171,7 @@ public class CanvasHelper
 	public void MeasureText() => throw new NotImplementedException();
 	#endregion
 	#endregion
+
 	#region Create (not implemented at all)
 	public void CreateConicGradient(float startAngle, float x, float y) => throw new NotImplementedException();
 	public void CreateImageData() => throw new NotImplementedException();
@@ -156,10 +179,19 @@ public class CanvasHelper
 	public void CreatePattern() => throw new NotImplementedException();
 	public void CreateRadialGradient() => throw new NotImplementedException();
 	#endregion
+
 	#region Draw image 
 	public async void DrawImage(string ImageId, float sx, float sy, float sWidth, float sHeight, float dx, float dy, float dWidth, float dHeight)
 	{
-		await runtime!.InvokeVoidAsync("CanvaDrawImg", this.ID, ImageId, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+		await runtime!.InvokeVoidAsync("CanvasDrawImg", this.ID, ImageId, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+	}
+	public async void DrawImage(string ImageId, float dx, float dy)
+	{
+		await runtime!.InvokeVoidAsync("CanvasDrawImg1", this.ID, ImageId, dx, dy);
+	}
+	public async void DrawImage(string ImageId, float dx, float dy, float dWidth, float dHeight)
+	{
+		await runtime!.InvokeVoidAsync("CanvasDrawImg2", this.ID, ImageId, dx, dy, dWidth, dHeight);
 	}
 	public async void AddImageByUrl(string Url, string id)
 	{

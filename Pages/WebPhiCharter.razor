@@ -6,30 +6,25 @@
 @using System.Text
 @inject IJSRuntime JS
 @inject HttpClient Http
+@using yt6983138.github.io.Components.WebPhiCharter
 
 @code {
-	protected override async Task OnAfterRenderAsync(bool firstRender)
+	protected override Task OnAfterRenderAsync(bool firstRender)
 	{
-		this.canvasContext = await this.canvasReference.CreateCanvas2DAsync();
-		await this.canvasContext.SetFillStyleAsync("green");
-
-		await this.canvasContext.FillRectAsync(10, 100, 100, 100);
-
-		await this.canvasContext.SetFontAsync("48px serif");
-		await this.canvasContext.StrokeTextAsync("Hello Blazor!!!", 10, 100);
+		if (firstRender)
+		{
+			Misc.CanvasHelperHolder = new("MyCanvas", JS);
+			TextureManager.Initialize();
+			Test.Main();
+		}
+		return base.OnAfterRenderAsync(firstRender);
 	}
-
-	protected BECanvasComponent canvasReference;
-	private Canvas2DContext canvasContext;
 }
 
-
 <div id="ToolsRow">
-
 </div>
 <div id="CommandRow">
-
 </div>
 <div id="Bottom">
-	<BECanvas Width="300" Height="400" @ref=canvasReference></BECanvas>
+	<canvas id="MyCanvas" width="400" height="300"></canvas>
 </div>

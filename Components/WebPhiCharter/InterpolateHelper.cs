@@ -31,7 +31,7 @@ public static class InterpolateHelper
 				throw new NotSupportedException("Use external call!");
 		}
 	}
-	public static float Interpolate(InternalEventInterpolateMode mode, EaseMode easeMode, float start, float end, float x, string? customStr = null)
+	public static float Interpolate(InternalEventInterpolateMode mode, EaseMode easeMode, float start, float end, float x, string? customFunction = null)
 	{
 		if (mode == InternalEventInterpolateMode.Custom)
 		{

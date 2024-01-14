@@ -1,52 +1,100 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+using System.Reflection;
 
 namespace yt6983138.github.io.Components.WebPhiCharter;
 public static class TextureManager
 {
-	public static ElementReference Tap { get; set; }
-	public static ElementReference Drag { get; set; }
-	public static ElementReference Flick { get; set; }
-	public static ElementReference HoldHead { get; set; }
-	public static ElementReference HoldBody { get; set; }
-	public static ElementReference HoldEnd { get; set; }
-	public static ElementReference MultiTap { get; set; }
-	public static ElementReference MultiDrag { get; set; }
-	public static ElementReference MultiFlick { get; set; }
-	public static ElementReference MultiHoldHead { get; set; }
-	public static ElementReference MultiHoldBody { get; set; }
-	public static ElementReference MultiHoldEnd { get; set; }
+	/// <summary>
+	/// multiply canvas width with this bam u get line width
+	/// </summary>
+	public const float LineBaseLength = 1.7777777777777777777f;
+	/// <summary>
+	/// multiply canvas width with this bam u get note width
+	/// </summary>
+	public const float NoteBaseScale = 1 / 7.2f;
 
-	public static ElementReference LineAP { get; set; }
-	public static ElementReference LineFC { get; set; }
-	public static ElementReference LineRegular { get; set; }
+	public static (float Width, float Height) TapSize { get; set; }
+	public static (float Width, float Height) DragSize { get; set; }
+	public static (float Width, float Height) FlickSize { get; set; }
+	public static (float Width, float Height) HoldHeadSize { get; set; }
+	public static (float Width, float Height) HoldBodySize { get; set; }
+	public static (float Width, float Height) HoldEndSize { get; set; }
+	public static (float Width, float Height) MultiTapSize { get; set; }
+	public static (float Width, float Height) MultiDragSize { get; set; }
+	public static (float Width, float Height) MultiFlickSize { get; set; }
+	public static (float Width, float Height) MultiHoldHeadSize { get; set; }
+	public static (float Width, float Height) MultiHoldBodySize { get; set; }
+	public static (float Width, float Height) MultiHoldEndSize { get; set; }
 
-	public static ElementReference GetNoteTextureNonHold(InternalNoteType type, bool multi)
+	public static (float Width, float Height) HitFXSize { get; set; }
+
+	public static (float Width, float Height) JudgeLineSize { get; set; }
+
+	public static Dictionary<string, (float Width, float Height)> CustomTextureSizes { get; set; } = new();
+
+	private static readonly Dictionary<string, string> TextureUrls = new Dictionary<string, string>()
 	{
-		switch ((type, multi))
+		{ "Tap", @"/Assets/WebPhiCharter/Tap.png" },
+		{ "Drag", @"/Assets/WebPhiCharter/Drag.png" },
+		{ "Flick", @"/Assets/WebPhiCharter/Flick.png" },
+		{ "HoldHead", @"/Assets/WebPhiCharter/HoldHead.png" },
+		{ "HoldBody", @"/Assets/WebPhiCharter/Hold.png" },
+		{ "HoldEnd", @"/Assets/WebPhiCharter/HoldEnd.png" },
+		{ "MultiTap", @"/Assets/WebPhiCharter/TapHL.png" },
+		{ "MultiDrag", @"/Assets/WebPhiCharter/DragHL.png" },
+		{ "MultiFlick", @"/Assets/WebPhiCharter/FlickHL.png" },
+		{ "MultiHoldHead", @"/Assets/WebPhiCharter/HoldHeadHL.png" },
+		{ "MultiHoldBody", @"/Assets/WebPhiCharter/HoldHL.png" },
+		{ "MultiHoldEnd", @"/Assets/WebPhiCharter/HoldEndHL.png" },
+		{ "HitFX", @"/Assets/WebPhiCharter/HitFXRaw.png" },
+		{ "JudgeLine", @"/Assets/WebPhiCharter/JudgeLine.png" }
+	};
+	public static readonly Dictionary<(bool multi, InternalNoteType type), string> TexturesToNames = new()
+	{
+		{ (false, InternalNoteType.Tap), "Tap" },
+		{ (false, InternalNoteType.Drag), "Drag" },
+		{ (false, InternalNoteType.Flick), "Flick" },
+		{ (true, InternalNoteType.Tap), "MultiTap" },
+		{ (true, InternalNoteType.Drag), "MultiDrag" },
+		{ (true, InternalNoteType.Flick), "MultiFlick" }
+	};
+	public static void Initialize()
+	{
+		foreach (var info in TextureUrls)
 		{
-			case (InternalNoteType.Tap, false):
-				return Tap;
-			case (InternalNoteType.Drag, false):
-				return Drag;
-			case (InternalNoteType.Flick, false):
-				return Flick;
-			case (InternalNoteType.Tap, true):
-				return MultiTap;
-			case (InternalNoteType.Drag, true):
-				return MultiDrag;
-			case (InternalNoteType.Flick, true):
-				return MultiFlick;
-			default:
-				throw new Exception("did u try to get texture from hold or custom?");
+			Misc.CanvasHelperHolder.AddImageByUrl(info.Value, info.Key);
 		}
 	}
-	public static (ElementReference head, ElementReference body, ElementReference end) GetNoteTextureHold(bool multi)
+	[JSInvokable]
+	public static void JSCallBack(string name, float width, float height)
 	{
-		if (multi) return (MultiHoldHead, MultiHoldBody, MultiHoldEnd);
-		return (HoldHead, HoldBody, HoldEnd);
+		PropertyInfo pInfo = typeof(TextureManager).GetProperty(name + "Size")!;
+		pInfo.SetValue(null, (width, height));
+
 	}
-	public static ElementReference GetLineTexture()
+	public static async void AddImage(string url, string name)
 	{
-		throw new NotImplementedException();
+		Misc.CanvasHelperHolder.AddImageByUrl(url, name);
+		CustomTextureSizes.Add(name, await Misc.CanvasHelperHolder.GetImageSize(name));
+	}
+	public static (string name, float width, float height) GetTextureNonHold(InternalNoteType type, bool multi)
+	{
+		switch (multi, type)
+		{
+			case (false, InternalNoteType.Tap):
+				return ("Tap", TapSize.Width, TapSize.Height);
+			case (false, InternalNoteType.Drag):
+				return ("Drag", DragSize.Width, DragSize.Height);
+			case (false, InternalNoteType.Flick):
+				return ("Flick", FlickSize.Width, FlickSize.Height);
+			case (true, InternalNoteType.Tap):
+				return ("MultiTap", MultiTapSize.Width, MultiTapSize.Height);
+			case (true, InternalNoteType.Drag):
+				return ("MultiDrag", MultiDragSize.Width, MultiDragSize.Height);
+			case (true, InternalNoteType.Flick):
+				return ("MultiFlick", MultiFlickSize.Width, MultiFlickSize.Height);
+			default: throw new Exception("Unexpected type");
+		}
 	}
 }

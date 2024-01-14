@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Collections.ObjectModel;
+using System.Diagnostics.Metrics;
 
 namespace yt6983138.github.io.Components.WebPhiCharter;
 
@@ -7,7 +9,7 @@ public partial class InternalJudgeLine
 	#region Normal event operations
 	public T GetValueFromEventList<T>(int index) where T : notnull, InternalEvent
 	{
-		switch (Activator.CreateInstance(typeof(T))) // pattern matching sux
+		switch (Activator.CreateInstance(typeof(T), true)) // pattern matching sux
 		{
 			case InternalMoveEvent _:
 				return (T)_moveEvents[index].QuickCopy();
@@ -23,7 +25,7 @@ public partial class InternalJudgeLine
 	}
 	public int GetCountOfEventList<T>() where T : notnull, InternalEvent
 	{
-		switch (Activator.CreateInstance(typeof(T))) // pattern matching sux
+		switch (Activator.CreateInstance(typeof(T), true)) // pattern matching sux
 		{
 			case InternalMoveEvent _:
 				return _moveEvents.Count;
@@ -128,6 +130,7 @@ public partial class InternalJudgeLine
 		switch (obj)
 		{
 			case InternalMoveEvent @event:
+				if (_moveEvents.Count == 0) { _moveEvents.Add(@event); break; }
 				foreach (var e in _moveEvents)
 				{
 					if (!stopCheckOverlap) @event.CheckOverlap(e);
@@ -138,6 +141,7 @@ public partial class InternalJudgeLine
 				}
 				break;
 			case InternalRotationEvent @event:
+				if (_rotateEvents.Count == 0) { _rotateEvents.Add(@event); break; }
 				foreach (var e in _rotateEvents)
 				{
 					if (!stopCheckOverlap) @event.CheckOverlap(e);
@@ -148,6 +152,7 @@ public partial class InternalJudgeLine
 				}
 				break;
 			case InternalOpacityEvent @event:
+				if (_opacityEvents.Count == 0) { _opacityEvents.Add(@event); break; }
 				foreach (var e in _opacityEvents)
 				{
 					if (!stopCheckOverlap) @event.CheckOverlap(e);
@@ -158,6 +163,7 @@ public partial class InternalJudgeLine
 				}
 				break;
 			case InternalSpeedEvent @event:
+				if (_speedEvents.Count == 0) { _speedEvents.Add(@event); break; }
 				foreach (var e in _speedEvents)
 				{
 					if (!stopCheckOverlap) @event.CheckOverlap(e);
@@ -182,7 +188,7 @@ public partial class InternalJudgeLine
 	}
 	public void RemoveValueFromEventList<T>(int index) where T : notnull, InternalEvent
 	{
-		switch (Activator.CreateInstance(typeof(T))) // pattern matching sux
+		switch (Activator.CreateInstance(typeof(T), true)) // pattern matching sux
 		{
 			case InternalMoveEvent _: // those dont have side effect
 				if (index <= _moveEventIndex) _moveEventIndex--;
@@ -251,12 +257,66 @@ public partial class InternalJudgeLine
 				throw new Exception("Unregistered event!");
 		}
 	}
+	[NotRecommended("Can cause performance issues!")]
+	public List<T> GetEventListCopy<T>() where T : notnull, InternalEvent
+	{
+		List<T> list = new List<T>();
+		switch (Activator.CreateInstance(typeof(T), true)) // pattern matching sux
+		{
+			case InternalMoveEvent _:
+				foreach (var e in _moveEvents) list.Add((T)e.QuickCopy());
+				return list;
+			case InternalRotationEvent _:
+				foreach (var e in _rotateEvents) list.Add((T)e.QuickCopy());
+				return list;
+			case InternalOpacityEvent _:
+				foreach (var e in _opacityEvents) list.Add((T)e.QuickCopy());
+				return list;
+			case InternalSpeedEvent _:
+				foreach (var e in _speedEvents) list.Add((T)e.QuickCopy());
+				return list;
+			default:
+				throw new Exception("Unregistered event!");
+		}
+	}
 	#endregion
 
 	#region Special event operations
 	private void ModifyEventTimeByBpmList()
 	{
 		throw new NotImplementedException();
+	}
+	private void RecheckTimeMSAll(BeatInfo onlyAfter)
+	{
+		foreach (var e in _moveEvents)
+		{
+			if (e.EndTime < onlyAfter) continue;
+			e.SetStartTime(in this._bpmEvents, e.StartTime);
+			e.SetEndTime(in this._bpmEvents, e.EndTime);
+		}
+		foreach (var e in _rotateEvents)
+		{
+			if (e.EndTime < onlyAfter) continue;
+			e.SetStartTime(in this._bpmEvents, e.StartTime);
+			e.SetEndTime(in this._bpmEvents, e.EndTime);
+		}
+		foreach (var e in _opacityEvents)
+		{
+			if (e.EndTime < onlyAfter) continue;
+			e.SetStartTime(in this._bpmEvents, e.StartTime);
+			e.SetEndTime(in this._bpmEvents, e.EndTime);
+		}
+		foreach (var e in _speedEvents)
+		{
+			if (e.EndTime < onlyAfter) continue;
+			e.SetStartTime(in this._bpmEvents, e.StartTime);
+			e.SetEndTime(in this._bpmEvents, e.EndTime);
+		}
+		foreach (var e in _notes)
+		{
+			if (e.Time + e.HoldLength < onlyAfter) continue;
+			e.SetTime(in this._bpmEvents, in this._speedEvents, e.Time); // set hold length is included in the method
+		}
 	}
 	public InternalBPMEvent GetBpmEventValue(int index)
 	{
@@ -269,6 +329,12 @@ public partial class InternalJudgeLine
 		{
 			ModifyEventTimeByBpmList();
 		}
+		BeatInfo info = BeatInfo.Zero;
+		for (int i = 0; i < _bpmEvents.Count - 1; i++)
+		{
+			info += _bpmEvents[i].StartTimeRelativeToLast;
+		}
+		RecheckTimeMSAll(info);
 	}
 	public void RemoveBpmEvent(int index, bool maintainStructure = true, bool rebuildEverything = false)
 	{
@@ -281,16 +347,35 @@ public partial class InternalJudgeLine
 		}
 		_bpmEvents.RemoveAt(index);
 		if (rebuildEverything) ModifyEventTimeByBpmList();
+		BeatInfo info = BeatInfo.Zero;
+		for (int i = 0; i < Math.Max(index - 1, 0); i++)
+		{
+			info += _bpmEvents[i].StartTimeRelativeToLast;
+		}
+		RecheckTimeMSAll(info);
 	}
 	public void InsertBpmEvent(int index, InternalBPMEvent @event, bool rebuildEverything = false)
 	{
 		_bpmEvents.Insert(index, @event);
 		if (rebuildEverything) ModifyEventTimeByBpmList();
+		BeatInfo info = BeatInfo.Zero;
+		for (int i = 0; i < Math.Max(index - 1, 0); i++)
+		{
+			info += _bpmEvents[i].StartTimeRelativeToLast;
+		}
+		RecheckTimeMSAll(info);
 	}
 	public void ModifyBpmEvent(int index, InternalBPMEvent @event, bool rebuildEverything = false)
 	{
 		_bpmEvents[index] = @event;
 		if (rebuildEverything) ModifyEventTimeByBpmList();
+		BeatInfo info = BeatInfo.Zero;
+		for (int i = 0; i < Math.Max(index - 1, 0); i++)
+		{
+			info += _bpmEvents[i].StartTimeRelativeToLast;
+		}
+		RecheckTimeMSAll(info);
 	}
+	public ReadOnlyCollection<InternalBPMEvent> GetBpmListCopy() => _bpmEvents.AsReadOnly();
 	#endregion
 }

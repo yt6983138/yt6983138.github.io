@@ -26,6 +26,7 @@ public class InternalMoveEvent : InternalEvent
 		SetStartTime(in bpmEvents, startTime);
 		SetEndTime(in bpmEvents, endTime);
 	}
+	private InternalMoveEvent() { }
 	public InternalEventInterpolateMode InterpolateModeX { get; set; } = InternalEventInterpolateMode.Linear;
 	public EaseMode EaseModeX { get; set; } = EaseMode.EaseBoth;
 	public string? CustomInterpolateFunctionX { get; set; } = null;
@@ -49,6 +50,7 @@ public class InternalRotationEvent : InternalEvent
 		SetStartTime(in bpmEvents, startTime);
 		SetEndTime(in bpmEvents, endTime);
 	}
+	private InternalRotationEvent() { }
 }
 public class InternalOpacityEvent : InternalEvent
 {
@@ -66,6 +68,7 @@ public class InternalOpacityEvent : InternalEvent
 		SetStartTime(in bpmEvents, startTime);
 		SetEndTime(in bpmEvents, endTime);
 	}
+	private InternalOpacityEvent() { }
 }
 public class InternalSpeedEvent : InternalEvent
 {
@@ -88,6 +91,7 @@ public class InternalSpeedEvent : InternalEvent
 		SetStartTime(in bpmEvents, startTime);
 		SetEndTime(in bpmEvents, endTime);
 	}
+	private InternalSpeedEvent() { }
 
 	/// <summary>
 	/// 
@@ -140,12 +144,11 @@ public class InternalNoteAdditionalEvent
 {
 	public bool IsFake { get; set; } = false;
 	public float Speed { get; set; } = 1;
+	public float Opacity { get; set; } = 1;
 	public int VisibleSinceMS { get; set; } = 0;
 	public int VisibleTime { get; set; } = int.MaxValue;
 	public (bool? multitap, InternalNoteType? type) Texture { get; set; } = (null, null);
 	public string? CustomTexturePath { get; set; } = null;
-	public Vector2? Scale { get; set; } = null;
-	public Matrix3x2? RenderTransform { get; set; } = null;
-	public Vector2 Anchor { get; set; } = new Vector2(0.5f, 0.5f);
-	public Vector2 Pivot { get; set; } = new Vector2(0.5f, 0.5f);
+	public Vector2 Scale { get; set; } = new Vector2(1, 1);
+	public Matrix3x2 RenderTransform { get; set; } = new Matrix3x2(1, 0, 0, 1, 0, 0);
 }

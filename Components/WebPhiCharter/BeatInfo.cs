@@ -5,7 +5,7 @@ public struct BeatInfo
 {
 	private int _numerator;
 	public required int Beat { get; set; }
-	public required int DivisionLevel { get; set; }
+	public required int DivisionLevel { get; set; } = 1;
 
 	public required int DivisionNumerator
 	{
@@ -15,8 +15,15 @@ public struct BeatInfo
 		}
 		set
 		{
-			Beat += value / DivisionLevel; // int division
-			_numerator = value % DivisionLevel;
+			if (DivisionLevel != 0)
+			{
+				Beat += value / DivisionLevel; // int division
+				_numerator = value % DivisionLevel;
+			}
+			else
+			{
+				_numerator = value;
+			}
 		}
 	}
 
@@ -43,7 +50,7 @@ public struct BeatInfo
 			sum2 += time;
 			sum += time.GetMS(@event.Bpm);
 			BeatInfo delta = this - sum2;
-			if (this < sum2 + bpmEvents[i + 1].StartTimeRelativeToLast || i + 1 == bpmEvents.Count) // 
+			if (i + 1 == bpmEvents.Count || this < sum2 + bpmEvents[i + 1].StartTimeRelativeToLast) // 
 			{
 				sum2 += delta;
 				sum += delta.GetMS(@event.Bpm);
@@ -86,6 +93,7 @@ public struct BeatInfo
 		int tmpFirstNumerator = first.DivisionNumerator * second.DivisionLevel;
 		int tmpSecondNumerator = second.DivisionNumerator * first.DivisionLevel;
 		int gcd = Utils.GCD(tmpDivision, tmpSecondNumerator + tmpFirstNumerator);
+		gcd = (gcd == 0 ? 1 : gcd);
 		tmp.DivisionLevel = tmpDivision / gcd;
 		tmp.DivisionNumerator = (tmpFirstNumerator + tmpSecondNumerator) / gcd;
 
@@ -105,6 +113,7 @@ public struct BeatInfo
 			tmp.Beat--;
 		}
 		int gcd = Utils.GCD(tmpDivision, i);
+		gcd = (gcd == 0 ? 1 : gcd);
 		tmp.DivisionLevel = tmpDivision / gcd;
 		tmp.DivisionNumerator = i / gcd;
 

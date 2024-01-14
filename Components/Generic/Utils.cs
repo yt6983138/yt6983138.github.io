@@ -113,5 +113,9 @@
 				}
 			}
 		}
+		public static float Range(float min, float num, float max)
+		{
+			return Math.Max(Math.Min(max, num), num);
+		}
 	}
 }

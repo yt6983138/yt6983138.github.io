@@ -12,7 +12,6 @@ public partial class InternalJudgeLine
 
     private List<InternalNote> _notes = new();
     public Dictionary<int, InternalNoteAdditionalEvent> AdditionalEventForNote { get; set; } = new();
-    public Dictionary<int, int> NoteMultiHoldMS { get; set; } = new();
 
     public InternalJudgeLine(float baseBpm)
     {
