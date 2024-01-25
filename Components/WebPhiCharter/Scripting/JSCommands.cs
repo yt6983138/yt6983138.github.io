@@ -11,6 +11,7 @@ public static class JSCommands
 {
 	private static Dictionary<int, Assembly> CachedAssembly = new();
 	private static HttpClient _httpClient = new HttpClient();
+	private static bool Initialized = false;
 
 	static JSCommands()
 	{
@@ -19,18 +20,23 @@ public static class JSCommands
 #else
 		_httpClient.BaseAddress = new Uri("https://yt6983138.github.io/");
 #endif
-		try { EvaluateCs(""); } catch { }
+		try { EvaluateCs("public class Script { public void Main() {} }"); }
+		finally
+		{
+			Initialized = true;
+		}
 	}
 
 	[JSInvokable]
 	public static void Update(int timeMS)
 	{
+		while (Initialized == false) { }
 		Misc.ChartHolder.Update(timeMS);
 	}
 	[JSInvokable]
 	public static async void EvaluateCs(string code)
 	{
-
+		while (Initialized == false) { }
 		int hash = code.GetHashCode();
 		Assembly assembly;
 		if (!CachedAssembly.ContainsKey(hash))
@@ -79,7 +85,8 @@ public static class JSCommands
 					CachedAssembly.Add(hash, assembly);
 				}
 			}
-		} else
+		}
+		else
 		{
 			assembly = CachedAssembly[hash];
 		}
@@ -94,7 +101,8 @@ public static class JSCommands
 				obj,
 				null
 			);
-		} catch (Exception e)
+		}
+		catch (Exception e)
 		{
 			Misc.PageLogger.Log(LoggerType.Error, e);
 			if (e.InnerException != null)

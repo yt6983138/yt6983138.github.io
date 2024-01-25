@@ -33,8 +33,12 @@ public class InternalNote
 		SetTime(in bpmEvents, in speedEvents, time);
 		if (holdLength != null)
 		{
-			SetHoldLength(in bpmEvents, in speedEvents, (BeatInfo)holdLength);
+			SetHoldLength(in bpmEvents, in speedEvents, holdLength);
 		}
+	}
+	public InternalNote(in List<InternalBPMEvent> bpmEvents, in List<InternalSpeedEvent> speedEvents, OfficialNote officialNote)
+	{
+		// todo
 	}
 	// no auto properties sad
 	public void SetHoldLength(in List<InternalBPMEvent> bpmEvents, in List<InternalSpeedEvent> speedEvents, BeatInfo length)

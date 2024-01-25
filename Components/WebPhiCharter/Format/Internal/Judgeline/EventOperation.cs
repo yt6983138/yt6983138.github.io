@@ -343,7 +343,7 @@ public partial class InternalJudgeLine
 			var eventNow = _bpmEvents[index];
 			var eventNext = _bpmEvents[index + 1];
 
-			_bpmEvents[index + 1].StartTimeRelativeToLast = eventNext.StartTimeRelativeToLast + eventNow.StartTimeRelativeToLast * new BeatInfo() { Beat = 0, DivisionLevel = (int)eventNext.Bpm, DivisionNumerator = (int)eventNow.Bpm };
+			_bpmEvents[index + 1].StartTimeRelativeToLast = eventNext.StartTimeRelativeToLast + eventNow.StartTimeRelativeToLast * new BeatInfo(0, (int)eventNext.Bpm, (int)eventNow.Bpm);
 		}
 		_bpmEvents.RemoveAt(index);
 		if (rebuildEverything) ModifyEventTimeByBpmList();

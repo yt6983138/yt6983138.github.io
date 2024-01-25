@@ -1,13 +1,13 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
 namespace yt6983138.github.io.Components.WebPhiCharter;
-public struct BeatInfo
+public class BeatInfo
 {
 	private int _numerator;
-	public required int Beat { get; set; }
-	public required int DivisionLevel { get; set; } = 1;
+	public int Beat { get; set; }
+	public int DivisionLevel { get; set; } = 1;
 
-	public required int DivisionNumerator
+	public int DivisionNumerator
 	{
 		get
 		{
@@ -27,9 +27,15 @@ public struct BeatInfo
 		}
 	}
 
-	public static BeatInfo Zero { get { return new() { Beat = 0, DivisionLevel = 0, DivisionNumerator = 0 }; } }
+	public static BeatInfo Zero { get { return new(0, 0, 0); } }
 
-	public BeatInfo() { }
+	private BeatInfo() { }
+	public BeatInfo(int beat, int level, int numerator)
+	{
+		Beat = beat;
+		DivisionLevel = level;
+		DivisionNumerator = numerator;
+	}
 	public int GetMS(float bpm)
 	{
 		if (DivisionLevel == 0) return (int)(bpm / 60 * Beat * 1000);
@@ -125,6 +131,6 @@ public struct BeatInfo
 		(int n, int d) two = (second.DivisionNumerator * second.DivisionLevel, second.DivisionLevel);
 		(int n, int d) combined = (one.n * two.d + two.n * one.d, one.d * two.d);
 		int gcd = Utils.GCD(combined.n, combined.d);
-		return new BeatInfo() { Beat = 0, DivisionLevel = combined.d / gcd, DivisionNumerator = combined.n / gcd };
+		return new BeatInfo(0, combined.d / gcd, combined.n / gcd);
 	}
 }

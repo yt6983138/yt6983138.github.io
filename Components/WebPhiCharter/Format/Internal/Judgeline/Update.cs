@@ -12,8 +12,6 @@ public partial class InternalJudgeLine
 	private int _speedEventIndex = 0;
 	private int _lastSpeedEventUpdateTimeMS = 0;
 
-	private int _bpmEventIndex = 0;
-
 	private float _elapsedNotePos = 0;
 	private float _currentOpacity = 0;
 	private float _currentPosX = 0;
