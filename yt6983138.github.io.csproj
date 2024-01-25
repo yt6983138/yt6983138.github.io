@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <None Include="wwwroot\Assets\Generic\DownloadHelper.js" />
-    <None Include="wwwroot\RksReaderEnchanced\testFile.xml" />
+    <None Include="wwwroot\RksReaderEnhanced\testFile.xml" />
   </ItemGroup>
 
 </Project>
