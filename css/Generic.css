@@ -117,7 +117,7 @@ a[href] {
 }
 
 #blazor-error-ui {
-    background: lightyellow;
+    background: rgb(240, 0, 0);
     bottom: 0;
     box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
     display: none;
@@ -146,7 +146,7 @@ a[href] {
 }
 
 ::-webkit-scrollbar-button:single-button:vertical:decrement {
-    background-image: url("/Assets/Generic/ArrowUp.svg");
+    background-image: url("/Assets/Generic/Icons/ArrowUp.svg");
     width: 12px;
     height: 12px;
     display: block;
@@ -154,7 +154,7 @@ a[href] {
     background-repeat: no-repeat;
 }
 ::-webkit-scrollbar-button:single-button:vertical:increment {
-    background-image: url("/Assets/Generic/ArrowDown.svg");
+    background-image: url("/Assets/Generic/Icons/ArrowDown.svg");
     width: 12px;
     height: 12px;
     display: block;
@@ -162,7 +162,7 @@ a[href] {
     background-repeat: no-repeat;
 }
 ::-webkit-scrollbar-button:single-button:horizontal:decrement {
-    background-image: url("/Assets/Generic/ArrowLeft.svg");
+    background-image: url("/Assets/Generic/Icons/ArrowLeft.svg");
     width: 12px;
     height: 12px;
     display: block;
@@ -171,7 +171,7 @@ a[href] {
 }
 
 ::-webkit-scrollbar-button:single-button:horizontal:increment {
-    background-image: url("/Assets/Generic/ArrowRight.svg");
+    background-image: url("/Assets/Generic/Icons/ArrowRight.svg");
     width: 12px;
     height: 12px;
     display: block;
