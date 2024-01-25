@@ -1,0 +1,252 @@
+
+#Title > p, h1 {
+    margin: 5px 0px 5px 0px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 10px 5px 10px 5px;
+    background-color: rgba(0, 0, 0, 0.4);
+    width: fit-content;
+    height: fit-content;
+    border-radius: 3px;
+}
+
+@keyframes WindowBlur {
+    0% {
+        backdrop-filter: blur(0.0px);
+        filter: opacity(0);
+    }
+
+    25% {
+        backdrop-filter: blur(0.5px);
+        filter: opacity(0.25);
+    }
+
+    75% {
+        backdrop-filter: blur(2.25px);
+        filter: opacity(0.8);
+    }
+
+    100% {
+        backdrop-filter: blur(3px);
+        filter: opacity(1);
+    }
+}
+
+#SubWindow {
+    margin: auto auto;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    animation: WindowBlur;
+    animation-duration: 0.1s;
+    animation-fill-mode: forwards;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /*transform: translate(-50%, -50%);*/
+    /*backdrop-filter: blur(var(--ButtonBlurRadius));*/
+}
+
+#LogBox {
+    width: 40%;
+    height: 80%;
+}
+#ExportBox {
+    width: 25%;
+    height: 40%;
+    justify-items: center;
+    align-items: center;
+}
+#GraphBox {
+    width: 50%;
+    height: 50%;
+    justify-items: center;
+    align-items: center;
+}
+#Graph {
+    /*position: absolute;*/
+    width: 100%;
+    height: 100%;
+}
+.goog-tooltip {
+    color: white;
+}
+.goog-tooltip > div {
+    background: rgba(0, 0, 0, 0.5) !important;
+    border: 1px solid !important;
+    border-color: var(--BorderColor) !important;
+}
+.google-visualization-tooltip {
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+    color: white;
+    border: 1px solid;
+    border-color: var(--BorderColor);
+}
+.google-visualization-tooltip-item > span {
+    color: white !important;
+}
+.ExportButtons {
+    position: absolute;
+}
+#ExportCsv {
+    top: 55%;
+    left: 10%;
+}
+#ExportJson {
+    top: 55%;
+    left: 40%;
+}
+#ExportEncryptedTable {
+    bottom: 20%;
+    left: 10%;
+    margin: 0 auto;
+}
+#CountToExportGroup {
+    width: 75%;
+    /*left: 12.5%*/
+    top: 10%;
+    margin: 5% auto;
+    margin-right: 19%;
+    text-align: left;
+    background-color: rgba(0, 0, 0, 25%);
+    justify-items: left;
+}
+#CountToExportLabel {
+    background-color: rgba(0, 0, 0, 0) !important;
+    padding: 0 0 0 0 !important;
+    width: 100%;
+    display: block;
+    text-align: left;
+    backdrop-filter: none !important;
+    margin: unset -10%;
+}
+#InputCountToExport {
+    margin: 5%;
+    
+}
+.Windows {
+    /*position: absolute;
+    transform: translate(-50%, -50%) translateY(1%);
+    top: 50%;
+    left: 50%;*/
+    backdrop-filter: blur(var(--ButtonBlurRadius));
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid;
+    border-color: var(--BorderColor);
+    border-radius: 3px;
+}
+
+#LogTextarea {
+    margin: 10% 10% 10% 10%; /* auto doesnt work*/
+    width: 80%;
+    height: 80%;
+    min-height: 80%;
+    max-height: 80%;
+    border-color: var(--BorderColor);
+    color: white;
+    background-color: var(--GenericBackgroundColor);
+    border-radius: 3px;
+    resize: none;
+    font-size: 14px;
+}
+
+.WindowClose {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    filter: invert();
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+}
+
+#Title {
+    margin: 0px 0px 0px 20px
+}
+
+table {
+    margin: 20px 20px 20px 20px;
+}
+
+#Misc {
+    margin: 20px 20px 20px 20px;
+}
+
+#AverageRks {
+    text-align: center;
+}
+
+#Scores {
+}
+
+.TableFirst {
+    font-weight: bold;
+}
+
+.InputBox {
+    margin: 10px 10px 10px 10px;
+}
+
+.ButtonBox {
+    margin: 10px 10px 10px 10px;
+    width: fit-content;
+
+}
+
+#DivInputUploadSaveFile {
+    margin: 10px 10px 10px -10px !important;
+}
+
+#CustomUpload {
+    background-image: none;
+    background-color: rgba(0, 0, 0, 25%);
+    font-size: 18px !important;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    backdrop-filter: blur(var(--ButtonBlurRadius));
+    border: 1px solid;
+    border-color: var(--BorderColor);
+    border-radius: 3px;
+}
+
+#DivLabelStatus {
+    float: right;
+}
+
+#DivButtonReset {
+    width: fit-content;
+}
+
+input[type=file] {
+    display: none !important;
+}
+
+label {
+    margin: 0px 10px 0px 20px;
+}
+
+#Div.Label.Status {
+    z-index: -1;
+}
+
+#IndexButtonArea {
+    padding: 20px 0px 0px 0px;
+    outline: thin;
+    position: center;
+    width: 50%;
+    margin: auto auto;
+    display: grid;
+    justify-items: center;
+    gap: 20px;
+}
+
+.IndexGoToButtons {
+    padding: 5px 5px 5px 5px;
+}
+
+#Background {
+    background-image: url(/Assets/Generic/Background/IndexBackground.png);
+}
