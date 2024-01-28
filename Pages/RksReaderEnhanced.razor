@@ -38,6 +38,10 @@
 		<input id="InputNamesFileLocation" type="text" @bind="NamesFileLocation" />
 		<label>Custom info csv (Do not change it if you don't know what you are doing)</label>
 	</div>
+	<div id="DivSessionToken" class="InputBox">
+		<input id="InputSessionToken" type="text" @bind="SessionToken" />
+		<label>Get save by session token [Experimental]</label>
+	</div>
 	<div id="DivInputUploadSaveFile" class="InputBox" style="margin: 10px 10px 10px -10px !important;">
 		<label for="InputUploadSaveFile" id="CustomUpload">Upload</label>
 		<InputFile id="InputUploadSaveFile" OnChange="OnLoadSave" />
@@ -49,6 +53,7 @@
 		<button id="ButtonOpenExport" @onclick=@(() => {Content = SubWindowContent.Export; SubWindowOpen = true;}) disabled=@(!Loaded)>Export</button>
 		<button id="ButtonOpenGraph" @onclick=@(() => {Content = SubWindowContent.Graph; SubWindowOpen = true;}) disabled=@(!Loaded)>Graph</button>
 		<button id="ButtonOpenLog" @onclick=@(() => {Content = SubWindowContent.Log; SubWindowOpen = true;})>Show logs</button>
+		<button id="ButtonGetSaveUsingToken" @onclick=OnGetSaveByToken>Get save by token</button>
 		<div id="DivLabelStatus">
 			@{
 				string tmp = PageLogger.LatestLogMessageUnformatted;
@@ -94,6 +99,8 @@
 				</div>
 				// ^ very tricky way to get function invoked after auto rendering
 				// InitChart();
+				break;
+			case SubWindowContent.CloudSave:
 				break;
 			default:
 				SubWindowOpen = false;

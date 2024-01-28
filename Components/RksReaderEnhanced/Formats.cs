@@ -52,9 +52,18 @@ public struct InternalScoreFormat
 		this.Status = status;
 		this.DifficultyName = diffcultyName;
 	}
+	public InternalScoreFormat(MoreInfoPartialGameRecord record, string name, float chartConstant, in IReadOnlyDictionary<int, string> levelTranslateTable)
+	{
+		this.Score = record.Score;
+		this.Acc = record.Acc;
+		this.ChartConstant = chartConstant;
+		this.Name = name;
+		this.Status = Helper.ParseStatus(new ScoreFormat() { a = Acc, s = Score, c = record.IsFc ? ScoreStatus.Fc : ScoreStatus.NotFc} );
+		this.DifficultyName = levelTranslateTable[record.LevelType];
+	}
 	public double GetRksCalculated()
 	{
-		if (this.Acc < 0.7)
+		if (this.Acc < 70)
 		{
 			return 0;
 		}

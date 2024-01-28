@@ -8,6 +8,14 @@
     <script src='https://www.gstatic.com/charts/loader.js'></script>
     <script src="/Assets/Generic/DownloadHelper.js"></script>
     <script src="/Assets/Generic/GoogleChartHelper.js"></script>
+    <script type="text/javascript" src="https://cdn.rawgit.com/ricmoo/aes-js/e27b99df/index.js"></script>
+    <script type="text/javascript"> 
+        function AesDecrypt(obj, key, iv) {
+            let aes = new aesjs.ModeOfOperation.cbc(key, iv);
+            let decrypted = aes.decrypt(obj);
+            return aesjs.padding.pkcs7.strip(decrypted);
+        }
+    </script>
 
     <link href="/css/Generic.css" rel="stylesheet" />
 

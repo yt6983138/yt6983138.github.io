@@ -31,6 +31,7 @@ public partial class RksReaderEnhanced : ComponentBase
 	private GoogleChartHelper? ChartHelper;
 	private DownloadHelper? downloadHelper;
 	private readonly static Logger PageLogger = new();
+	private static SaveHelper? SaveHelper { get; set; }
 	#endregion
 
 	#region Settings
@@ -40,6 +41,7 @@ public partial class RksReaderEnhanced : ComponentBase
 	public string ChartConstantFormat { get; set; } = "{0} {1:0.0}";
 	public string DifficultyFileLocation { get; set; } = "/Assets/RksReader/3.4.2/difficulty.csv";
 	public string NamesFileLocation { get; set; } = "/Assets/RksReader/3.4.2/info.csv";
+	public string SessionToken { get; set; } = string.Empty;
 	#endregion
 
 	#region Temp datas
@@ -75,7 +77,8 @@ public partial class RksReaderEnhanced : ComponentBase
 		None = -1,
 		Log = 0,
 		Export = 1,
-		Graph = 2
+		Graph = 2,
+		CloudSave = 3
 	}
 
 	private SubWindowContent Content { get; set; } = SubWindowContent.None;
@@ -185,9 +188,9 @@ public partial class RksReaderEnhanced : ComponentBase
 			try
 			{
 				string keyDecoded = System.Net.WebUtility.UrlDecode(pair.Key);
-				string keyDecrypted = PhiDecrypt.DecryptNew(keyDecoded);
+				string keyDecrypted = SaveHelper.DecryptSaveStringNew(keyDecoded);
 				string valueDecoded = System.Net.WebUtility.UrlDecode(pair.Value);
-				string valueDecrypted = PhiDecrypt.DecryptNew(valueDecoded);
+				string valueDecrypted = SaveHelper.DecryptSaveStringNew(valueDecoded);
 				builder.AddRow(keyDecoded, keyDecrypted, valueDecoded, valueDecrypted);
 				i++;
 			}
@@ -288,6 +291,35 @@ public partial class RksReaderEnhanced : ComponentBase
 	}
 	#endregion
 
+	#region Cloud save
+	private async void OnGetSaveByToken()
+	{
+		if (IsLoading || Loaded) { return; }
+		IsLoading = true;
+		try
+		{
+			SaveHelper = new(JS);
+			SaveHelper.InitializeCloudHelper(SessionToken);
+		} catch
+		{
+			PageLogger.Log(LoggerType.Error, "Invalid token!");
+			IsLoading = false;
+			return;
+		}
+		PageLogger.Log(LoggerType.Info, "Loading CSVs...");
+		await LoadCSVs();
+		PageLogger.Log(LoggerType.Info, "Loading Save From Remote...");
+		var saves = await SaveHelper.GetGameSaves(Difficulties);
+		Console.WriteLine(saves.Count);
+		AllScores = saves[^1].Records; // latest
+		IsLoading = false;
+		Loaded = true;
+		RenderAll();
+		PageLogger.Log(LoggerType.Info, "Done Loading!");
+	}
+	#endregion
+
+	#region Offline save
 	private async Task OnLoadSave(InputFileChangeEventArgs e)
 	{
 		if (IsLoading || Loaded) { return; }
@@ -325,19 +357,34 @@ public partial class RksReaderEnhanced : ComponentBase
 			PageLogger.Log(LoggerType.Error, ex);
 		}
 		PageLogger.Log(LoggerType.Info, "Decrypting Save...");
+		DecryptSave();
+		PageLogger.Log(LoggerType.Info, "Loading CSVs...");
+		await LoadCSVs();
+		// done load csv
+		PageLogger.Log(LoggerType.Info, "Filtering Save...");
+		FilterSave();
+		IsLoading = false;
+		Loaded = true;
+		RenderAll();
+		PageLogger.Log(LoggerType.Info, "Done Loading!");
+	}
+	public void DecryptSave()
+	{
 		foreach (var pair in RawParsedXml)
 		{
 			if (System.Net.WebUtility.UrlDecode(pair.Key).Length % 4 != 0) { continue; }
 			try
 			{
-				DecryptedXml.Add(PhiDecrypt.DecryptNew(System.Net.WebUtility.UrlDecode(pair.Key)), PhiDecrypt.DecryptNew(System.Net.WebUtility.UrlDecode(pair.Value)));
+				DecryptedXml.Add(SaveHelper.DecryptSaveStringNew(System.Net.WebUtility.UrlDecode(pair.Key)), SaveHelper.DecryptSaveStringNew(System.Net.WebUtility.UrlDecode(pair.Value)));
 			}
 			catch (Exception ex)
 			{
 				LogWithExThrown(LoggerType.Error, $"Processing {pair.Key}, {pair.Value}", ex);
 			}
 		}
-		PageLogger.Log(LoggerType.Info, "Loading Difficulty csv...");
+	}
+	public async Task LoadCSVs()
+	{
 		string[] csvFile = (await Http.GetStringAsync(DifficultyFileLocation)).Replace("\r", "").Split("\n");
 		foreach (string line in csvFile)
 		{
@@ -350,6 +397,7 @@ public partial class RksReaderEnhanced : ComponentBase
 					if (i > 4 || i == 0) { continue; }
 					if (!float.TryParse(splitted[i], out diffcultys[i - 1])) { Console.WriteLine($"Error processing {splitted[i]}"); }
 				}
+				// Console.WriteLine($"{splitted[0]}, {diffcultys[0]}, {diffcultys[1]}, {diffcultys[2]}, {diffcultys[3]}");
 				Difficulties.Add(splitted[0], diffcultys);
 			}
 			catch (Exception ex)
@@ -357,7 +405,6 @@ public partial class RksReaderEnhanced : ComponentBase
 				PageLogger.Log(LoggerType.Error, ex);
 			}
 		}
-		PageLogger.Log(LoggerType.Info, "Loading Name csv...");
 		string[] csvFile2 = (await Http.GetStringAsync(NamesFileLocation)).Replace("\r", "").Split("\n");
 		foreach (string line in csvFile2)
 		{
@@ -371,8 +418,9 @@ public partial class RksReaderEnhanced : ComponentBase
 				PageLogger.Log(LoggerType.Error, ex);
 			}
 		}
-		// done load csv
-		PageLogger.Log(LoggerType.Info, "Filtering Save...");
+	}
+	public void FilterSave()
+	{
 		foreach (var pair in DecryptedXml)
 		{
 			if (pair.Key.Split('.').Length < 4)
@@ -397,9 +445,6 @@ public partial class RksReaderEnhanced : ComponentBase
 				LogWithExThrown(LoggerType.Error, $"Processing {pair.Key}, {pair.Value}", ex);
 			}
 		}
-		IsLoading = false;
-		Loaded = true;
-		RenderAll();
-		PageLogger.Log(LoggerType.Info, "Done Loading!");
 	}
+	#endregion
 }
