@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "yt6983138.github.io",
   "resources": {
-    "hash": "sha256-4OYdua+olAszqW/of4Bsq3lfwneA4cRggJJMkLVxk6E=",
+    "hash": "sha256-7nUmD9FpKO1n3R9fF3RKs9RvsgWDqSYtmMaTLEnQyk8=",
     "jsModuleNative": {
       "dotnet.native.8.0.1.sbw5laa9df.js": "sha256-SGOlISx+3G4kkvpC9Uq3qoPGsnjxGmW61QBev0lyI5U="
     },
@@ -106,7 +106,7 @@
       "System.Xml.ReaderWriter.wasm": "sha256-PkaH/hSgwl2xz5SDj+IBh4XG+ONxxxIlKy0priDaouI=",
       "System.Xml.XDocument.wasm": "sha256-Dkx5bXa73mUhK8Ytn/EWY8MldQECT9QKXe356ZT3bcc=",
       "System.Xml.XPath.XDocument.wasm": "sha256-0GQLthT7krrpBp94n+tXIYP3HhHX7YC6lpy2drhp3c8=",
-      "yt6983138.github.io.wasm": "sha256-R7H0r21wxUkZE8D4YPEDNFtcPFZV/BoG9t6afDBvKe4="
+      "yt6983138.github.io.wasm": "sha256-xGc0usgsLqzG1I+D+5qlJUN4AlMuaKt2lJqsInQ6rzA="
     },
     "satelliteResources": {
       "cs": {

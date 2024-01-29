@@ -53,6 +53,7 @@ select {
     border: 1px solid;
     border-color: var(--BorderColor);
     border-radius: 3px;
+    max-height: 90%;
 }
 
 option {
