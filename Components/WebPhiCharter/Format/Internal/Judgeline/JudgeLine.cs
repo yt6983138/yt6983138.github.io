@@ -15,6 +15,6 @@ public partial class InternalJudgeLine
 
     public InternalJudgeLine(float baseBpm)
     {
-        _bpmEvents.Add(new InternalBPMEvent() { Bpm = baseBpm, StartTimeRelativeToLast = BeatInfo.Zero });
+		this._bpmEvents.Add(new InternalBPMEvent() { Bpm = baseBpm, StartTimeRelativeToLast = BeatInfo.Zero });
     }
 }

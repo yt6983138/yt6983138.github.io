@@ -11,18 +11,18 @@ public class BeatInfo
 	{
 		get
 		{
-			return _numerator;
+			return this._numerator;
 		}
 		set
 		{
-			if (DivisionLevel != 0)
+			if (this.DivisionLevel != 0)
 			{
-				Beat += value / DivisionLevel; // int division
-				_numerator = value % DivisionLevel;
+				this.Beat += value / this.DivisionLevel; // int division
+				this._numerator = value % this.DivisionLevel;
 			}
 			else
 			{
-				_numerator = value;
+				this._numerator = value;
 			}
 		}
 	}
@@ -32,14 +32,14 @@ public class BeatInfo
 	private BeatInfo() { }
 	public BeatInfo(int beat, int level, int numerator)
 	{
-		Beat = beat;
-		DivisionLevel = level;
-		DivisionNumerator = numerator;
+		this.Beat = beat;
+		this.DivisionLevel = level;
+		this.DivisionNumerator = numerator;
 	}
 	public int GetMS(float bpm)
 	{
-		if (DivisionLevel == 0) return (int)(bpm / 60 * Beat * 1000);
-		return (int)(bpm / 60 * ((float)this.Beat + (float)DivisionNumerator / (float)DivisionLevel) * 1000);
+		if (this.DivisionLevel == 0) return (int)(bpm / 60 * this.Beat * 1000);
+		return (int)(bpm / 60 * ((float)this.Beat + (float)this.DivisionNumerator / (float)this.DivisionLevel) * 1000);
 	}
 	/// <summary>
 	/// get ms with bpm events as input

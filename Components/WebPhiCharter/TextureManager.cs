@@ -33,7 +33,7 @@ public static class TextureManager
 
 	public static Dictionary<string, (float Width, float Height)> CustomTextureSizes { get; set; } = new();
 
-	private static readonly Dictionary<string, string> TextureUrls = new Dictionary<string, string>()
+	private static readonly Dictionary<string, string> TextureUrls = new()
 	{
 		{ "Tap", @"/Assets/WebPhiCharter/Tap.png" },
 		{ "Drag", @"/Assets/WebPhiCharter/Drag.png" },

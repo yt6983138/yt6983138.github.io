@@ -10,7 +10,7 @@ namespace yt6983138.github.io.Components.WebPhiCharter;
 public static class JSCommands
 {
 	private static Dictionary<int, Assembly> CachedAssembly = new();
-	private static HttpClient _httpClient = new HttpClient();
+	private static HttpClient _httpClient = new();
 	private static bool Initialized = false;
 
 	static JSCommands()

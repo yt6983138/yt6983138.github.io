@@ -55,6 +55,10 @@ public partial class RksReaderEnhanced : ComponentBase
 	public Dictionary<string, float[]> Difficulties { get; private set; } = new();
 	public Dictionary<string, string> Names { get; private set; } = new();
 	public Dictionary<string, (int ap, int fc, int vu, int s, int a, int b, int c, int f, int cleared)> Infos { get; set; } = new();
+
+	public Summary CurrentSummary { get; set; } = Summary.Default;
+	public UserInfo CurrentUserInfo { get; set; } = new();
+	public List<(Summary Summary, GameSave Save)> CloudSaves { get; set; } = new();
 	#endregion
 
 	#region misc
@@ -65,8 +69,8 @@ public partial class RksReaderEnhanced : ComponentBase
 	}
 	protected override void OnInitialized()
 	{
-		ChartHelper = new(JS);
-		downloadHelper = new(JS);
+		this.ChartHelper = new(this.JS);
+		this.downloadHelper = new(this.JS);
 		base.OnInitialized();
 	}
 	#endregion
@@ -86,22 +90,22 @@ public partial class RksReaderEnhanced : ComponentBase
 
 	private void CloseSubWindow()
 	{
-		Content = SubWindowContent.None;
-		SubWindowOpen = false;
+		this.Content = SubWindowContent.None;
+		this.SubWindowOpen = false;
 	}
 
 	#region Chart
 	private void InitChart()
 	{
-		ChartHelper!.Reset();
-		ChartHelper!.Initalize("string", "Name", "number", "rks");
-		ChartHelper!.CreateChart("Graph");
-		int count = Math.Min(20, AllScores.Count);
+		this.ChartHelper!.Reset();
+		this.ChartHelper!.Initalize("string", "Name", "number", "rks");
+		this.ChartHelper!.CreateChart("Graph");
+		int count = Math.Min(20, this.AllScores.Count);
 		for (int i = 0; i < count; i++)
 		{
-			ChartHelper!.AddRow(
-				(Names.TryGetValue(AllScores[i].Name, out string? value) ? value : AllScores[i].Name) + " " + AllScores[i].DifficultyName,
-				AllScores[i].GetRksCalculated()
+			this.ChartHelper!.AddRow(
+				(this.Names.TryGetValue(this.AllScores[i].Name, out string? value) ? value : this.AllScores[i].Name) + " " + this.AllScores[i].DifficultyName,
+				this.AllScores[i].GetRksCalculated()
 			);
 		}
 		var options = new
@@ -119,8 +123,8 @@ public partial class RksReaderEnhanced : ComponentBase
 			},
 			vAxis = new
 			{
-				maxValue = AllScores[1].GetRksCalculated(),
-				minValue = AllScores[19].GetRksCalculated(),
+				maxValue = this.AllScores[1].GetRksCalculated(),
+				minValue = this.AllScores[19].GetRksCalculated(),
 				textStyle = new { color = "white" },
 				gridlineColor = "#404040"
 			},
@@ -137,7 +141,7 @@ public partial class RksReaderEnhanced : ComponentBase
 			}
 		};
 
-		ChartHelper.Draw(options);
+		this.ChartHelper.Draw(options);
 		//ChartHelper.Draw(JsonConvert.DeserializeObject("{\"hAxis\":{\"title\":\"Horizontal Axis Label\"},\"vAxis\":{\"title\":\"Vertical Axis Label\"},\"title\":\"This is a Google Chart in Blazor\",\"legend\":{\"position\":\"none\"}}"));
 	}
 	#endregion
@@ -148,42 +152,42 @@ public partial class RksReaderEnhanced : ComponentBase
 
 	private async void ExportJSON()
 	{
-		int count = (CountToExport < 1) ? AllScores.Count : Math.Min(CountToExport, AllScores.Count);
+		int count = (this.CountToExport < 1) ? this.AllScores.Count : Math.Min(this.CountToExport, this.AllScores.Count);
 		List<ExportScoreFormat> sliced = new();
 		for (int i = 0; i < count; i++)
 		{
-			sliced.Add(AllScores[i].Export(Names.TryGetValue(AllScores[i].Name, out string? value) ? value : "Unknown"));
+			sliced.Add(this.AllScores[i].Export(this.Names.TryGetValue(this.AllScores[i].Name, out string? value) ? value : "Unknown"));
 		}
 		string content = JsonConvert.SerializeObject(sliced, Newtonsoft.Json.Formatting.Indented);
-		await downloadHelper!.DownloadFromByte(Encoding.UTF8.GetBytes(content), "Export.json", "application/json");
+		await this.downloadHelper!.DownloadFromByte(Encoding.UTF8.GetBytes(content), "Export.json", "application/json");
 	}
 	private async void ExportCSV()
 	{
 		CsvBuilder builder = new();
 		builder.AddHeader("ID", "Name", "Difficulty", "Chart Constant", "Score", "Acc", "Rks Given", "Stat");
-		int count = (CountToExport < 1) ? AllScores.Count : Math.Min(CountToExport, AllScores.Count);
+		int count = (this.CountToExport < 1) ? this.AllScores.Count : Math.Min(this.CountToExport, this.AllScores.Count);
 		for (int i = 0; i < count; i++)
 		{
-			string realName = Names.TryGetValue(AllScores[i].Name, out string? value) ? value : "Unknown";
+			string realName = this.Names.TryGetValue(this.AllScores[i].Name, out string? value) ? value : "Unknown";
 			builder.AddRow(
-				AllScores[i].Name,
+				this.AllScores[i].Name,
 				realName,
-				AllScores[i].DifficultyName,
-				AllScores[i].ChartConstant.ToString(),
-				AllScores[i].Score.ToString(),
-				AllScores[i].Acc.ToString(),
-				AllScores[i].GetRksCalculated().ToString(),
-				AllScores[i].Status.ToString()
+				this.AllScores[i].DifficultyName,
+				this.AllScores[i].ChartConstant.ToString(),
+				this.AllScores[i].Score.ToString(),
+				this.AllScores[i].Acc.ToString(),
+				this.AllScores[i].GetRksCalculated().ToString(),
+				this.AllScores[i].Status.ToString()
 			);
 		}
-		await downloadHelper!.DownloadFromByte(Encoding.UTF8.GetBytes(builder.Compile()), "Export.csv", "text/csv");
+		await this.downloadHelper!.DownloadFromByte(Encoding.UTF8.GetBytes(builder.Compile()), "Export.csv", "text/csv");
 	}
 	private async void ExportEncryptDataTable()
 	{
 		int i = 0;
 		CsvBuilder builder = new();
 		builder.AddHeader("Key encrypted", "Key decrypted", "Value encrypted", "Value decrypted");
-		foreach (var pair in RawParsedXml)
+		foreach (var pair in this.RawParsedXml)
 		{
 			try
 			{
@@ -196,7 +200,7 @@ public partial class RksReaderEnhanced : ComponentBase
 			}
 			catch { }
 		}
-		await downloadHelper!.DownloadFromByte(Encoding.UTF8.GetBytes(builder.Compile()), "ExportTable.csv", "text/csv");
+		await this.downloadHelper!.DownloadFromByte(Encoding.UTF8.GetBytes(builder.Compile()), "ExportTable.csv", "text/csv");
 	}
 	#endregion
 
@@ -206,9 +210,9 @@ public partial class RksReaderEnhanced : ComponentBase
 		get
 		{
 			double _rks = 0;
-			for (int i = 0; i < Math.Min(20, AllScores.Count); i++)
+			for (int i = 0; i < Math.Min(20, this.AllScores.Count); i++)
 			{
-				_rks += AllScores[i].GetRksCalculated() * 0.05;
+				_rks += this.AllScores[i].GetRksCalculated() * 0.05;
 			}
 			return _rks;
 		}
@@ -216,29 +220,38 @@ public partial class RksReaderEnhanced : ComponentBase
 
 	private void Reset()
 	{
-		CurrentAtt = "";
-		RawParsedXml.Clear();
-		DecryptedXml.Clear();
+		this.CurrentAtt = "";
+		this.RawParsedXml.Clear();
+		this.DecryptedXml.Clear();
 		//AllScores.Clear();
-		Difficulties.Clear();
-		Names.Clear();
-		AllScores.Clear();
-		Loaded = false;
+		this.Difficulties.Clear();
+		this.Names.Clear();
+		this.AllScores.Clear();
+		this.CloudSaves.Clear();
+		this.Loaded = false;
 	}
 	private void RenderAll()
 	{
-		Infos = new Dictionary<string, (int ap, int fc, int vu, int s, int a, int b, int c, int f, int cleared)>()
+		this.Infos = new Dictionary<string, (int ap, int fc, int vu, int s, int a, int b, int c, int f, int cleared)>()
 		{
 			{ "EZ", new() },
 			{ "HD", new() },
 			{ "IN", new() },
 			{ "AT", new() }
 		};
-		(int index, InternalScoreFormat score) highest = new();
+		(int index, InternalScoreFormat score) highest = (0, new()
+		{
+			Acc = 0,
+			Score = 0,
+			ChartConstant = 0,
+			DifficultyName = "EZ",
+			Name = "None",
+			Status = ScoreStatus.Bugged
+		});
 		PageLogger.Log(LoggerType.Info, "Sorting Save...");
 		int i = 0;
-		AllScores.Sort((x, y) => y.GetRksCalculated().CompareTo(x.GetRksCalculated()));
-		foreach (var score in AllScores)
+		this.AllScores.Sort((x, y) => y.GetRksCalculated().CompareTo(x.GetRksCalculated()));
+		foreach (var score in this.AllScores)
 		{
 			if (score.GetRksCalculated() > highest.score.GetRksCalculated() && score.Acc == 100)
 			{
@@ -248,7 +261,7 @@ public partial class RksReaderEnhanced : ComponentBase
 			i++;
 			try
 			{
-				var _info = Infos[score.DifficultyName.ToUpper()];
+				var _info = this.Infos[score.DifficultyName.ToUpper()];
 				switch (score.Status)
 				{
 					case ScoreStatus.Phi:
@@ -279,42 +292,70 @@ public partial class RksReaderEnhanced : ComponentBase
 						_info.cleared++;
 						break;
 				}
-				Infos[score.DifficultyName.ToUpper()] = _info;
+				this.Infos[score.DifficultyName.ToUpper()] = _info;
 			}
 			catch { }
 		}
 		//Scores.Sort((x, y) => x.GetRksCalculated().CompareTo(y.GetRksCalculated()));
 		PageLogger.Log(LoggerType.Info, "Sorting Save...");
-		AllScores.Insert(0, highest.score);
-		AllScores.Sort((x, y) => y.GetRksCalculated().CompareTo(x.GetRksCalculated()));
-		AllScores.MoveItemAtIndexToFront(highest.index);
+		// this.AllScores.Sort((x, y) => y.GetRksCalculated().CompareTo(x.GetRksCalculated()));
+		this.AllScores.Insert(0, highest.score);
+		//this.AllScores.MoveItemAtIndexToFront(highest.index);
+		base.StateHasChanged();
 	}
 	#endregion
 
 	#region Cloud save
+	private string _currentSelected = "";
+	public string CurrentSelected
+	{
+		get => this._currentSelected;
+		set
+		{
+			this._currentSelected = value;
+			this.ChangeScores();
+		}
+	}
+
+	public void ChangeScores()
+	{
+		if (this.IsLoading || !this.Loaded || !int.TryParse(this._currentSelected, out int value)) return;
+		this.AllScores = new List<InternalScoreFormat>(this.CloudSaves[value].Save.Records);
+		this.CurrentSummary = this.CloudSaves[value].Summary;
+		RenderAll(); // ^ to prevent modification to record list
+	}
 	private async void OnGetSaveByToken()
 	{
-		if (IsLoading || Loaded) { return; }
-		IsLoading = true;
+		if (this.IsLoading || this.Loaded) { return; }
+		this.IsLoading = true;
 		try
 		{
-			SaveHelper = new(JS);
-			SaveHelper.InitializeCloudHelper(SessionToken);
+			SaveHelper = new() { Runtime = this.JS };
+			SaveHelper.InitializeCloudHelper(this.SessionToken);
 		} catch
 		{
 			PageLogger.Log(LoggerType.Error, "Invalid token!");
-			IsLoading = false;
+			this.IsLoading = false;
 			return;
 		}
-		PageLogger.Log(LoggerType.Info, "Loading CSVs...");
-		await LoadCSVs();
-		PageLogger.Log(LoggerType.Info, "Loading Save From Remote...");
-		var saves = await SaveHelper.GetGameSaves(Difficulties);
-		Console.WriteLine(saves.Count);
-		AllScores = saves[^1].Records; // latest
-		IsLoading = false;
-		Loaded = true;
-		RenderAll();
+		try
+		{
+			PageLogger.Log(LoggerType.Info, "Loading CSVs...");
+			await this.LoadCSVs();
+			PageLogger.Log(LoggerType.Info, "Loading Save From Remote...");
+			this.CloudSaves = await SaveHelper.GetGameSaves(this.Difficulties);
+			this.CurrentUserInfo = await SaveHelper.GetUserInfo();
+			// Console.WriteLine(CloudSaves.Count);
+			this.AllScores = new List<InternalScoreFormat>(CloudSaves[^1].Save.Records); // latest
+			this.CurrentSummary = CloudSaves[^1].Summary; // latest
+		} 
+		catch (Exception ex)
+		{
+			PageLogger.Log(LoggerType.Error, ex);
+		}
+		this.IsLoading = false;
+		this.Loaded = true;
+		this.RenderAll();
 		PageLogger.Log(LoggerType.Info, "Done Loading!");
 	}
 	#endregion
@@ -322,17 +363,17 @@ public partial class RksReaderEnhanced : ComponentBase
 	#region Offline save
 	private async Task OnLoadSave(InputFileChangeEventArgs e)
 	{
-		if (IsLoading || Loaded) { return; }
-		IsLoading = true;
+		if (this.IsLoading || this.Loaded) { return; }
+		this.IsLoading = true;
 		try
 		{
 			PageLogger.Log(LoggerType.Info, "Reading File...");
 			using (var reader = new StreamReader(e.File.OpenReadStream(MaxFileSize), System.Text.Encoding.UTF8))
 			{
-				SaveFileContent = await reader.ReadToEndAsync();
+				this.SaveFileContent = await reader.ReadToEndAsync();
 			}
 			PageLogger.Log(LoggerType.Info, "Creating reader...");
-			XmlReader xmlReader = XmlReader.Create(new StringReader(SaveFileContent)); // cant use e.File.OpenReadStream
+			XmlReader xmlReader = XmlReader.Create(new StringReader(this.SaveFileContent)); // cant use e.File.OpenReadStream
 			PageLogger.Log(LoggerType.Info, "Parsing XML...");
 			while (xmlReader.Read())
 			{
@@ -340,10 +381,10 @@ public partial class RksReaderEnhanced : ComponentBase
 				{
 					case XmlNodeType.Element:
 						if (xmlReader.AttributeCount < 1) { break; }
-						CurrentAtt = xmlReader.GetAttribute(0);
+						this.CurrentAtt = xmlReader.GetAttribute(0);
 						break;
 					case XmlNodeType.Text:
-						RawParsedXml.Add(CurrentAtt, xmlReader.Value);
+						this.RawParsedXml.Add(this.CurrentAtt, xmlReader.Value);
 						break;
 					case XmlNodeType.EndElement:
 						break;
@@ -357,25 +398,43 @@ public partial class RksReaderEnhanced : ComponentBase
 			PageLogger.Log(LoggerType.Error, ex);
 		}
 		PageLogger.Log(LoggerType.Info, "Decrypting Save...");
-		DecryptSave();
+		this.DecryptSave();
 		PageLogger.Log(LoggerType.Info, "Loading CSVs...");
-		await LoadCSVs();
+		await this.LoadCSVs();
 		// done load csv
 		PageLogger.Log(LoggerType.Info, "Filtering Save...");
-		FilterSave();
-		IsLoading = false;
-		Loaded = true;
-		RenderAll();
+		this.FilterSave();
+		this.CurrentUserInfo = new()
+		{
+			UserName = DecryptedXml.TryGetValue("playerID", out string? str1) ? str1 : "*Unknown*",
+			ModificationTime = DecryptedXml.TryGetValue("saveBaseTime", out string? str2) ? DateTime.Parse(str2) : DateTime.UnixEpoch,
+			CreationTime = DateTime.UnixEpoch,
+			NickName = "*Unknown*"
+		};
+		this.CurrentSummary = new()
+		{
+			Avatar = string.Empty,
+			ChallengeCode = DecryptedXml.TryGetValue("ChallengeModeRank", out string? str3) ? ushort.Parse(str3) : (ushort)0,
+			GameVersion = -1,
+			SaveVersion = -1,
+			Clears = new()
+		};
+		this.RenderAll();
+		this.IsLoading = false;
+		this.Loaded = true;
 		PageLogger.Log(LoggerType.Info, "Done Loading!");
 	}
 	public void DecryptSave()
 	{
-		foreach (var pair in RawParsedXml)
+		foreach (var pair in this.RawParsedXml)
 		{
 			if (System.Net.WebUtility.UrlDecode(pair.Key).Length % 4 != 0) { continue; }
 			try
 			{
-				DecryptedXml.Add(SaveHelper.DecryptSaveStringNew(System.Net.WebUtility.UrlDecode(pair.Key)), SaveHelper.DecryptSaveStringNew(System.Net.WebUtility.UrlDecode(pair.Value)));
+				this.DecryptedXml.Add(
+					SaveHelper.DecryptSaveStringNew(System.Net.WebUtility.UrlDecode(pair.Key)), 
+					SaveHelper.DecryptSaveStringNew(System.Net.WebUtility.UrlDecode(pair.Value))
+				);
 			}
 			catch (Exception ex)
 			{
@@ -385,7 +444,7 @@ public partial class RksReaderEnhanced : ComponentBase
 	}
 	public async Task LoadCSVs()
 	{
-		string[] csvFile = (await Http.GetStringAsync(DifficultyFileLocation)).Replace("\r", "").Split("\n");
+		string[] csvFile = (await this.Http.GetStringAsync(this.DifficultyFileLocation)).Replace("\r", "").Split("\n");
 		foreach (string line in csvFile)
 		{
 			try
@@ -398,20 +457,20 @@ public partial class RksReaderEnhanced : ComponentBase
 					if (!float.TryParse(splitted[i], out diffcultys[i - 1])) { Console.WriteLine($"Error processing {splitted[i]}"); }
 				}
 				// Console.WriteLine($"{splitted[0]}, {diffcultys[0]}, {diffcultys[1]}, {diffcultys[2]}, {diffcultys[3]}");
-				Difficulties.Add(splitted[0], diffcultys);
+				this.Difficulties.Add(splitted[0], diffcultys);
 			}
 			catch (Exception ex)
 			{
 				PageLogger.Log(LoggerType.Error, ex);
 			}
 		}
-		string[] csvFile2 = (await Http.GetStringAsync(NamesFileLocation)).Replace("\r", "").Split("\n");
+		string[] csvFile2 = (await this.Http.GetStringAsync(this.NamesFileLocation)).Replace("\r", "").Split("\n");
 		foreach (string line in csvFile2)
 		{
 			try
 			{
 				string[] splitted = line.Split(@"\");
-				Names.Add(splitted[0], splitted[1]);
+				this.Names.Add(splitted[0], splitted[1]);
 			}
 			catch (Exception ex)
 			{
@@ -421,7 +480,7 @@ public partial class RksReaderEnhanced : ComponentBase
 	}
 	public void FilterSave()
 	{
-		foreach (var pair in DecryptedXml)
+		foreach (var pair in this.DecryptedXml)
 		{
 			if (pair.Key.Split('.').Length < 4)
 			{
@@ -431,10 +490,10 @@ public partial class RksReaderEnhanced : ComponentBase
 			{
 				string[] splitted = pair.Key.Split(".");
 				string id = $"{splitted[0]}.{splitted[1]}";
-				AllScores.Add(
-					JsonConvert.DeserializeObject<ScoreFormat>(DecryptedXml[pair.Key])
+				this.AllScores.Add(
+					JsonConvert.DeserializeObject<ScoreFormat>(this.DecryptedXml[pair.Key])
 						.ToInternalFormat(
-							Difficulties[id][Helper.DifficultStringToIndex(splitted[^1])],
+							this.Difficulties[id][Helper.DifficultStringToIndex(splitted[^1])],
 							id,
 							splitted[^1]
 						)

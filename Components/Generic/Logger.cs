@@ -22,29 +22,29 @@ public class Logger
 		};
 	public void Log(LoggerType type, string message)
 	{
-		string formatted = string.Format(LogFormat, DateTime.Now, TypeToMessage[type], message);
+		string formatted = string.Format(this.LogFormat, DateTime.Now, this.TypeToMessage[type], message);
 		Console.Write(formatted);
-		AllLogs.Add(formatted);
-		LatestLogMessageUnformatted = message;
-		LatestLogMessage = formatted;
+		this.AllLogs.Add(formatted);
+		this.LatestLogMessageUnformatted = message;
+		this.LatestLogMessage = formatted;
 	}
 	public void Log(LoggerType type, Exception ex)
 	{
 		string compiled = string.Format(
-				ExceptionFormat,
+				this.ExceptionFormat,
 				ex.Message,
 				ex.InnerException == null ? "Empty" : ex.InnerException.Message,
 				ex.StackTrace
 				);
 		string formatted = string.Format(
-			LogFormat,
+			this.LogFormat,
 			DateTime.Now,
-			TypeToMessage[type],
+			this.TypeToMessage[type],
 			compiled
 			);
 		Console.Write(formatted);
-		AllLogs.Add(formatted);
-		LatestLogMessageUnformatted = compiled;
-		LatestLogMessage = formatted;
+		this.AllLogs.Add(formatted);
+		this.LatestLogMessageUnformatted = compiled;
+		this.LatestLogMessage = formatted;
 	}
 }

@@ -58,7 +58,7 @@ public struct InternalScoreFormat
 		this.Acc = record.Acc;
 		this.ChartConstant = chartConstant;
 		this.Name = name;
-		this.Status = Helper.ParseStatus(new ScoreFormat() { a = Acc, s = Score, c = record.IsFc ? ScoreStatus.Fc : ScoreStatus.NotFc} );
+		this.Status = Helper.ParseStatus(new ScoreFormat() { a = this.Acc, s = this.Score, c = record.IsFc ? ScoreStatus.Fc : ScoreStatus.NotFc} );
 		this.DifficultyName = levelTranslateTable[record.LevelType];
 	}
 	public double GetRksCalculated()
@@ -79,13 +79,13 @@ public struct InternalScoreFormat
 			ChartConstant = this.ChartConstant,
 			Score = this.Score,
 			Acc = this.Acc,
-			RksGiven = GetRksCalculated(),
+			RksGiven = this.GetRksCalculated(),
 			Stat = this.Status.ToString()
 		};
 	}
 	public override string ToString()
 	{
-		return $"Score: {this.Score}, Acc: {this.Acc}, Status: {nameof(this.Status)}, cc: {this.ChartConstant}, calcedRks: {GetRksCalculated()}";
+		return $"Score: {this.Score}, Acc: {this.Acc}, Status: {nameof(this.Status)}, cc: {this.ChartConstant}, calcedRks: {this.GetRksCalculated()}";
 	}
 }
 public struct ExportScoreFormat

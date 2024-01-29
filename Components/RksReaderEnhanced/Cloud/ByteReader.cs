@@ -28,10 +28,10 @@ public struct MoreInfoPartialGameRecord
 
 	public MoreInfoPartialGameRecord(PartialGameRecord data, bool isfc, int levelType)
 	{
-		Score = data.Score;
-		Acc = data.Acc;
-		IsFc = isfc;
-		LevelType = levelType;
+		this.Score = data.Score;
+		this.Acc = data.Acc;
+		this.IsFc = isfc;
+		this.LevelType = levelType;
 	}
 }
 public class ByteReader // fuck my brain is going to explode if i keep working on this shit
@@ -54,8 +54,8 @@ public class ByteReader // fuck my brain is going to explode if i keep working o
 	}
 	public bool ReadIsFc() // i have no idea why is it like this
 	{
-		Offset++;
-		return (Data[Offset - 1] & 1 << RecordRead) == 0 ? false : true;
+		this.Offset++;
+		return (this.Data[this.Offset - 1] & 1 << this.RecordRead) == 0 ? false : true;
 	}
 	public bool ReadBool(int num, int index)
 	{
@@ -63,22 +63,22 @@ public class ByteReader // fuck my brain is going to explode if i keep working o
 	}
 	public void ReadHeader(int size)
 	{
-		Offset += size;
+		this.Offset += size;
 	}
 	public byte[] ReadStringBytes()
 	{
-		RecordRead++;
-		var data = Data[(Offset + 1)..(Offset + Data[Offset] + 1)];
-		Offset += Data[Offset] + 1;
+		this.RecordRead++;
+		var data = this.Data[(this.Offset + 1)..(this.Offset + this.Data[this.Offset] + 1)];
+		this.Offset += this.Data[this.Offset] + 1;
 		return data;
 	}
 	public List<MoreInfoPartialGameRecord> ReadRecord()
 	{
 		List<MoreInfoPartialGameRecord> scores = new();
-		int readLen = Data[Offset - 3] - 2;
-		int endOffset = readLen + Offset;
-		byte exists = Data[Offset - 2];
-		byte fc = Data[Offset - 1];
+		int readLen = this.Data[this.Offset - 3] - 2;
+		int endOffset = readLen + this.Offset;
+		byte exists = this.Data[this.Offset - 2];
+		byte fc = this.Data[this.Offset - 1];
 
 		// Console.WriteLine((endOffset - Offset).ToString("X4"));
 		// Console.WriteLine(Offset.ToString("X4"));
@@ -86,30 +86,30 @@ public class ByteReader // fuck my brain is going to explode if i keep working o
 		for (byte i = 0; i < 4; i++)
 		{
 			// Console.WriteLine(BitConverter.ToString(Data[Offset..(Offset + 8)]));
-			if (Offset == endOffset) break;
-			if (!ReadBool(exists, i) || Offset + 8 >= Data.Length)
+			if (this.Offset == endOffset) break;
+			if (!this.ReadBool(exists, i) || this.Offset + 8 >= this.Data.Length)
 			{
 				// Offset += 8;
 				continue;
 			}
-			var record = SerialHelper.ByteToStruct<PartialGameRecord>(Data[Offset..(Offset + 8)]);
-			if (record.Acc > 100 || record.Acc < 0) Console.WriteLine(BitConverter.ToString(Data[Offset..(Offset + 8)]).Replace('-', ' '));
+			var record = SerialHelper.ByteToStruct<PartialGameRecord>(this.Data[this.Offset..(this.Offset + 8)]);
+			if (record.Acc > 100 || record.Acc < 0) Console.WriteLine(BitConverter.ToString(this.Data[this.Offset..(this.Offset + 8)]).Replace('-', ' '));
 			scores.Add(
 				new MoreInfoPartialGameRecord(
 					record,
-					ReadBool(fc, i),
+					this.ReadBool(fc, i),
 					i
 				)
 			);
-			Offset += 8;
+			this.Offset += 8;
 		}
-		Offset = endOffset;
+		this.Offset = endOffset;
 		// Offset++;
 		return scores;
 	}
 	public void Jump(int offset)
 	{
-		Offset += offset;
+		this.Offset += offset;
 	}
 	public List<InternalScoreFormat> ReadAll(in IReadOnlyDictionary<string, float[]> difficulties)
 	{

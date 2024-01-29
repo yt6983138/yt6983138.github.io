@@ -30,10 +30,10 @@ public class InternalNote
 
 	public InternalNote(in List<InternalBPMEvent> bpmEvents, in List<InternalSpeedEvent> speedEvents, BeatInfo time, BeatInfo? holdLength = null)
 	{
-		SetTime(in bpmEvents, in speedEvents, time);
+		this.SetTime(in bpmEvents, in speedEvents, time);
 		if (holdLength != null)
 		{
-			SetHoldLength(in bpmEvents, in speedEvents, holdLength);
+			this.SetHoldLength(in bpmEvents, in speedEvents, holdLength);
 		}
 	}
 	public InternalNote(in List<InternalBPMEvent> bpmEvents, in List<InternalSpeedEvent> speedEvents, OfficialNote officialNote)
@@ -97,7 +97,7 @@ public class InternalNote
 		this.Time = Time;
 		this.TimeMS = timeMS;
 
-		if (this.NoteType == InternalNoteType.Hold && this.HoldRenderLength > 0) SetHoldLength(in bpmEvents, in speedEvents, this.HoldLength);
+		if (this.NoteType == InternalNoteType.Hold && this.HoldRenderLength > 0) this.SetHoldLength(in bpmEvents, in speedEvents, this.HoldLength);
 	}
 	public object QuickCopy() => this.MemberwiseClone();
 }

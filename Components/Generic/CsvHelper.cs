@@ -17,7 +17,7 @@
         public string EscapeCSVString(string input)
         {
             string first = input.Replace("\"", "\"\"");
-            if (first.Contains(Sperator) || first.Contains("\n"))
+            if (first.Contains(this.Sperator) || first.Contains("\n"))
             {
                 first = $"\"{first}\"";
             }
@@ -25,14 +25,14 @@
         }
         public void AddHeader(params string[] headers)
         {
-            if (Header.Length != 0)
+            if (this.Header.Length != 0)
             {
                 throw new Exception("Already have header!");
             }
-            Header = new string[headers.Length];
-            for (int i = 0; i < Header.Length; i++)
+			this.Header = new string[headers.Length];
+            for (int i = 0; i < this.Header.Length; i++)
             {
-                Header[i] = EscapeCSVString(headers[i]);
+				this.Header[i] = this.EscapeCSVString(headers[i]);
             }
         }
         public void AddRow(params string[] rows)
@@ -40,37 +40,37 @@
             string[] temp = new string[rows.Length];
             for (int i = 0; i < rows.Length; i++)
             {
-                temp[i] = EscapeCSVString(rows[i]);
+                temp[i] = this.EscapeCSVString(rows[i]);
             }
-            Rows.Add(temp);
+			this.Rows.Add(temp);
         }
         public string Compile()
         {
             string compiled = "";
-            for (int i = 0; i < Header.Length; i++)
+            for (int i = 0; i < this.Header.Length; i++)
             {
-                compiled += Header[i];
-                if (i == Header.Length - 1)
+                compiled += this.Header[i];
+                if (i == this.Header.Length - 1)
                 {
                     compiled += "\n";
                 }
                 else
                 {
-                    compiled += Sperator;
+                    compiled += this.Sperator;
                 }
             }
-            for (int i = 0; i < Rows.Count; i++)
+            for (int i = 0; i < this.Rows.Count; i++)
             {
-                for (int j = 0; j < Rows[i].Length; j++)
+                for (int j = 0; j < this.Rows[i].Length; j++)
                 {
-                    compiled += Rows[i][j];
-                    if (j == Rows[i].Length - 1)
+                    compiled += this.Rows[i][j];
+                    if (j == this.Rows[i].Length - 1)
                     {
                         compiled += "\n";
                     }
                     else
                     {
-                        compiled += Sperator;
+                        compiled += this.Sperator;
                     }
                 }
             }

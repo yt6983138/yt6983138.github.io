@@ -6,6 +6,6 @@ public class NotRecommendedAttribute : Attribute
 	public string? Message { get; }
 	public NotRecommendedAttribute(string? message)
 	{
-		Message = message;
+		this.Message = message;
 	}
 }

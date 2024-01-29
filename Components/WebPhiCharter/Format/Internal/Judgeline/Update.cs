@@ -23,46 +23,46 @@ public partial class InternalJudgeLine
 		// iterate thru events
 		#region Iterate events
 		// reset if go back
-		if (timeMS < _lastSpeedEventUpdateTimeMS)
+		if (timeMS < this._lastSpeedEventUpdateTimeMS)
 		{
-			_speedEventIndex = 0;
-			_lastSpeedEventUpdateTimeMS = 0;
-			_elapsedNotePos = 0;
-			_moveEventIndex = 0;
-			_rotateEventIndex = 0;
-			_opacityEventIndex = 0;
+			this._speedEventIndex = 0;
+			this._lastSpeedEventUpdateTimeMS = 0;
+			this._elapsedNotePos = 0;
+			this._moveEventIndex = 0;
+			this._rotateEventIndex = 0;
+			this._opacityEventIndex = 0;
 		}
 
 		// speed event
-		for (int i = _speedEventIndex; i < _speedEvents.Count; i++)
+		for (int i = this._speedEventIndex; i < this._speedEvents.Count; i++)
 		{
-			var @event = _speedEvents[i];
+			var @event = this._speedEvents[i];
 			int eventEndMS = @event.EndMS;
 			int eventStartMS = @event.StartMS;
 			int eventTimeDelta = eventEndMS - eventStartMS;
 
-			int lastUpdateTimeDelta = _lastSpeedEventUpdateTimeMS - eventStartMS;
+			int lastUpdateTimeDelta = this._lastSpeedEventUpdateTimeMS - eventStartMS;
 			int nowTimeDelta = timeMS - eventStartMS;
 
 			if (timeMS > eventEndMS)
 			{
-				_elapsedNotePos += @event.GetIntegral((float)lastUpdateTimeDelta / eventTimeDelta, 1); // prevent event not ending correctly
-				_lastSpeedEventUpdateTimeMS = eventEndMS;
+				this._elapsedNotePos += @event.GetIntegral((float)lastUpdateTimeDelta / eventTimeDelta, 1); // prevent event not ending correctly
+				this._lastSpeedEventUpdateTimeMS = eventEndMS;
 				continue;
 			}
 			if (timeMS < eventStartMS) break;
 
-			_elapsedNotePos += @event.GetIntegral((float)lastUpdateTimeDelta / eventTimeDelta, (float)nowTimeDelta / eventTimeDelta);
+			this._elapsedNotePos += @event.GetIntegral((float)lastUpdateTimeDelta / eventTimeDelta, (float)nowTimeDelta / eventTimeDelta);
 			// ^ use cast to prevent int division
 
-			_lastSpeedEventUpdateTimeMS = timeMS;
-			_speedEventIndex = i;
+			this._lastSpeedEventUpdateTimeMS = timeMS;
+			this._speedEventIndex = i;
 			break;
 		}
 		// opacity event
-		for (int i = _opacityEventIndex; i < _opacityEvents.Count; i++)
+		for (int i = this._opacityEventIndex; i < this._opacityEvents.Count; i++)
 		{
-			var @event = _opacityEvents[i];
+			var @event = this._opacityEvents[i];
 			int eventEndMS = @event.EndMS;
 			int eventStartMS = @event.StartMS;
 			int eventTimeDelta = eventEndMS - eventStartMS;
@@ -72,7 +72,7 @@ public partial class InternalJudgeLine
 			if (timeMS > eventEndMS) continue; // restart loop directly
 			if (timeMS < eventStartMS) break;
 
-			_currentOpacity = InterpolateHelper.Interpolate(
+			this._currentOpacity = InterpolateHelper.Interpolate(
 				@event.InterpolateMode,
 				@event.EaseMode,
 				@event.OpacityStart,
@@ -81,13 +81,13 @@ public partial class InternalJudgeLine
 				@event.CustomInterpolateFunction
 			);
 
-			_opacityEventIndex = i;
+			this._opacityEventIndex = i;
 			break;
 		}
 		// move event
-		for (int i = _moveEventIndex; i < _moveEvents.Count; i++)
+		for (int i = this._moveEventIndex; i < this._moveEvents.Count; i++)
 		{
-			var @event = _moveEvents[i];
+			var @event = this._moveEvents[i];
 			int eventEndMS = @event.EndMS;
 			int eventStartMS = @event.StartMS;
 			int eventTimeDelta = eventEndMS - eventStartMS;
@@ -97,7 +97,7 @@ public partial class InternalJudgeLine
 			if (timeMS > eventEndMS) continue; // restart loop directly
 			if (timeMS < eventStartMS) break;
 
-			_currentPosX = InterpolateHelper.Interpolate(
+			this._currentPosX = InterpolateHelper.Interpolate(
 				@event.InterpolateModeX,
 				@event.EaseModeX,
 				@event.MovementStart.X,
@@ -105,7 +105,7 @@ public partial class InternalJudgeLine
 				nowTimeDelta / eventTimeDelta,
 				@event.CustomInterpolateFunctionX
 			);
-			_currentPosY = InterpolateHelper.Interpolate(
+			this._currentPosY = InterpolateHelper.Interpolate(
 				@event.InterpolateModeY,
 				@event.EaseModeY,
 				@event.MovementStart.Y,
@@ -114,13 +114,13 @@ public partial class InternalJudgeLine
 				@event.CustomInterpolateFunctionY
 			);
 
-			_moveEventIndex = i;
+			this._moveEventIndex = i;
 			break;
 		}
 		// rotation event
-		for (int i = _rotateEventIndex; i < _rotateEvents.Count; i++)
+		for (int i = this._rotateEventIndex; i < this._rotateEvents.Count; i++)
 		{
-			var @event = _rotateEvents[i];
+			var @event = this._rotateEvents[i];
 			int eventEndMS = @event.EndMS;
 			int eventStartMS = @event.StartMS;
 			int eventTimeDelta = eventEndMS - eventStartMS;
@@ -130,7 +130,7 @@ public partial class InternalJudgeLine
 			if (timeMS > eventEndMS) continue; // restart loop directly
 			if (timeMS < eventStartMS) break;
 
-			_currentRotationEuler = InterpolateHelper.Interpolate(
+			this._currentRotationEuler = InterpolateHelper.Interpolate(
 				@event.InterpolateMode,
 				@event.EaseMode,
 				@event.RotationStart,
@@ -139,7 +139,7 @@ public partial class InternalJudgeLine
 				@event.CustomInterpolateFunction
 			);
 
-			_rotateEventIndex = i;
+			this._rotateEventIndex = i;
 			break;
 		}
 		#endregion
@@ -151,9 +151,9 @@ public partial class InternalJudgeLine
 
 		float lineLength = width * TextureManager.LineBaseLength;
 		float lineHeight = TextureManager.JudgeLineSize.Height * (TextureManager.JudgeLineSize.Width / lineLength);
-		Misc.CanvasHelperHolder.GlobalAlpha = _currentOpacity;            // ^ calculate scale
-		Misc.CanvasHelperHolder.Translate(_currentPosX * width, _currentPosY * height);
-		Misc.CanvasHelperHolder.RotateEuler(_currentRotationEuler);
+		Misc.CanvasHelperHolder.GlobalAlpha = this._currentOpacity;            // ^ calculate scale
+		Misc.CanvasHelperHolder.Translate(this._currentPosX * width, this._currentPosY * height);
+		Misc.CanvasHelperHolder.RotateEuler(this._currentRotationEuler);
 		Misc.CanvasHelperHolder.DrawImage(
 			"JudgeLine",
 			-0.5f * TextureManager.JudgeLineSize.Width,
@@ -166,12 +166,12 @@ public partial class InternalJudgeLine
 		#endregion
 
 		#region Draw notes
-		foreach (var note in _notes)
+		foreach (var note in this._notes)
 		{
 			if (note.TimeMS + 512 < timeMS) continue;
 
 			InternalNoteAdditionalEvent additionalEvent = null!;
-			if (note.ID != null) AdditionalEventForNote.TryGetValue((int)note.ID, out additionalEvent!);
+			if (note.ID != null) this.AdditionalEventForNote.TryGetValue((int)note.ID, out additionalEvent!);
 			if (additionalEvent == null) additionalEvent = new InternalNoteAdditionalEvent();
 
 			if (additionalEvent.VisibleSinceMS < timeMS && timeMS < additionalEvent.VisibleSinceMS + additionalEvent.VisibleTime)
@@ -195,7 +195,7 @@ public partial class InternalJudgeLine
 			InternalNoteType type = additionalEvent.Texture.type ?? note.NoteType;
 			bool isMulti = additionalEvent.Texture.multitap ?? false; // todo multi check
 
-			float elapsedDelta = note.PosX - _elapsedNotePos;
+			float elapsedDelta = note.PosX - this._elapsedNotePos;
 			float noteWidth = TextureManager.NoteBaseScale * width;
 			float noteScale = noteWidth / TextureManager.TapSize.Width;
 
@@ -280,7 +280,7 @@ public partial class InternalJudgeLine
 					noteSize.width,
 					noteSize.height,
 					note.PosX * width - noteSize.width * noteScale / 2 * additionalEvent.Scale.X * 1,
-					note.PosY * height - _elapsedNotePos - noteSize.height * noteScale / 2,
+					note.PosY * height - this._elapsedNotePos - noteSize.height * noteScale / 2,
 					noteSize.width * noteScale,
 					noteSize.height * noteScale
 				);

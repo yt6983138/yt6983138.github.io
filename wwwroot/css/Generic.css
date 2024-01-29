@@ -1,9 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Saira&display=swap');
+
 :root {
     --ButtonBlurRadius: 3px;
     --BorderColor: rgba(255, 255, 255, 0.5);
     --GenericBackgroundColor: rgba(0, 0, 0, 25%);
     color: white;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Saira', Tahoma, Geneva, Verdana, sans-serif;
     background: #212121;
 }
 
@@ -17,12 +19,12 @@ html {
     height: 100%;
 }
 
-input[type=text], input[type=number] {
+input[type=text], input[type=number], input[type=password] {
     background-image: none;
     background-color: var(--GenericBackgroundColor);
     font-size: 22px;
     color: white;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Saira', Tahoma, Geneva, Verdana, sans-serif;
     backdrop-filter: blur(var(--ButtonBlurRadius));
     border: 1px solid;
     border-color: var(--BorderColor);
@@ -34,7 +36,43 @@ input[type=file] {
     background-color: var(--GenericBackgroundColor);
     font-size: 18px;
     color: white;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Saira', Tahoma, Geneva, Verdana, sans-serif;
+    backdrop-filter: blur(var(--ButtonBlurRadius));
+    border: 1px solid;
+    border-color: var(--BorderColor);
+    border-radius: 3px;
+}
+
+select {
+    background-image: none;
+    background-color: var(--GenericBackgroundColor);
+    font-size: 22px;
+    color: white;
+    font-family: 'Saira', Tahoma, Geneva, Verdana, sans-serif;
+    backdrop-filter: blur(var(--ButtonBlurRadius));
+    border: 1px solid;
+    border-color: var(--BorderColor);
+    border-radius: 3px;
+}
+
+option {
+    background-image: none;
+    background-color: var(--GenericBackgroundColor);
+    font-size: 22px;
+    color: lightgray;
+    font-family: 'Saira', Tahoma, Geneva, Verdana, sans-serif;
+    backdrop-filter: blur(var(--ButtonBlurRadius));
+    border: 1px solid;
+    border-color: var(--BorderColor);
+    border-radius: 3px;
+}
+
+option:checked {
+    background-image: none;
+    background-color: rgba(0, 0, 0, 15%);
+    font-size: 22px;
+    color: white;
+    font-family: 'Saira', Tahoma, Geneva, Verdana, sans-serif;
     backdrop-filter: blur(var(--ButtonBlurRadius));
     border: 1px solid;
     border-color: var(--BorderColor);
@@ -63,7 +101,7 @@ button {
     background-color: var(--GenericBackgroundColor);
     font-size: 22px;
     color: white;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Saira', Tahoma, Geneva, Verdana, sans-serif;
     backdrop-filter: blur(var(--ButtonBlurRadius));
     border: 1px solid;
     border-color: var(--BorderColor);
@@ -106,7 +144,7 @@ label {
     background-color: rgba(0, 0, 0, 25%);
     font-size: 22px;
     color: white;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Saira', Tahoma, Geneva, Verdana, sans-serif;
     backdrop-filter: blur(var(--ButtonBlurRadius));
     border-radius: 3px;
     padding: 5px 10px 5px 10px;
@@ -141,9 +179,9 @@ a[href] {
     background: rgba(90, 90, 90, 0.75);
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: rgba(128, 128, 128, 0.75);
-}
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(128, 128, 128, 0.75);
+    }
 
 ::-webkit-scrollbar-button:single-button:vertical:decrement {
     background-image: url("/Assets/Generic/Icons/ArrowUp.svg");
@@ -153,6 +191,7 @@ a[href] {
     background-size: 12px;
     background-repeat: no-repeat;
 }
+
 ::-webkit-scrollbar-button:single-button:vertical:increment {
     background-image: url("/Assets/Generic/Icons/ArrowDown.svg");
     width: 12px;
@@ -161,6 +200,7 @@ a[href] {
     background-size: 12px;
     background-repeat: no-repeat;
 }
+
 ::-webkit-scrollbar-button:single-button:horizontal:decrement {
     background-image: url("/Assets/Generic/Icons/ArrowLeft.svg");
     width: 12px;
@@ -178,6 +218,7 @@ a[href] {
     background-size: 12px;
     background-repeat: no-repeat;
 }
+
 ::-webkit-scrollbar-corner {
     background-color: rgba(35, 35, 35, 0.5);
     width: 12px;

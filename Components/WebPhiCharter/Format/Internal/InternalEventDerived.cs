@@ -23,8 +23,8 @@ public class InternalMoveEvent : InternalEvent
 
 	public InternalMoveEvent(in List<InternalBPMEvent> bpmEvents, BeatInfo startTime, BeatInfo endTime)
 	{
-		SetStartTime(in bpmEvents, startTime);
-		SetEndTime(in bpmEvents, endTime);
+		this.SetStartTime(in bpmEvents, startTime);
+		this.SetEndTime(in bpmEvents, endTime);
 	}
 	private InternalMoveEvent() { }
 	public InternalEventInterpolateMode InterpolateModeX { get; set; } = InternalEventInterpolateMode.Linear;
@@ -47,8 +47,8 @@ public class InternalRotationEvent : InternalEvent
 
 	public InternalRotationEvent(in List<InternalBPMEvent> bpmEvents, BeatInfo startTime, BeatInfo endTime)
 	{
-		SetStartTime(in bpmEvents, startTime);
-		SetEndTime(in bpmEvents, endTime);
+		this.SetStartTime(in bpmEvents, startTime);
+		this.SetEndTime(in bpmEvents, endTime);
 	}
 	private InternalRotationEvent() { }
 }
@@ -65,8 +65,8 @@ public class InternalOpacityEvent : InternalEvent
 
 	public InternalOpacityEvent(in List<InternalBPMEvent> bpmEvents, BeatInfo startTime, BeatInfo endTime)
 	{
-		SetStartTime(in bpmEvents, startTime);
-		SetEndTime(in bpmEvents, endTime);
+		this.SetStartTime(in bpmEvents, startTime);
+		this.SetEndTime(in bpmEvents, endTime);
 	}
 	private InternalOpacityEvent() { }
 }
@@ -88,8 +88,8 @@ public class InternalSpeedEvent : InternalEvent
 
 	public InternalSpeedEvent(in List<InternalBPMEvent> bpmEvents, BeatInfo startTime, BeatInfo endTime)
 	{
-		SetStartTime(in bpmEvents, startTime);
-		SetEndTime(in bpmEvents, endTime);
+		this.SetStartTime(in bpmEvents, startTime);
+		this.SetEndTime(in bpmEvents, endTime);
 	}
 	private InternalSpeedEvent() { }
 
@@ -101,11 +101,11 @@ public class InternalSpeedEvent : InternalEvent
 	/// <returns></returns>
 	public float GetIntegral(float rangeMin = 0, float rangeMax = 1)
 	{
-		float delta = SpeedEnd - SpeedStart;
-		switch (InterpolateMode)
+		float delta = this.SpeedEnd - this.SpeedStart;
+		switch (this.InterpolateMode)
 		{
 			case InternalEventInterpolateMode.Linear:
-				return ((SpeedStart + delta * rangeMin) + (SpeedStart + delta * rangeMax)) * 2;
+				return ((this.SpeedStart + delta * rangeMin) + (this.SpeedStart + delta * rangeMax)) * 2;
 			case InternalEventInterpolateMode.Log10:
 				throw new NotImplementedException();
 			case InternalEventInterpolateMode.Square:

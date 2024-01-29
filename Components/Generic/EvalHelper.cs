@@ -11,12 +11,12 @@ public class EvalHelper
     private IJSRuntime JSRuntime { get; init; } 
     public EvalHelper(IJSRuntime jSRuntime)
     {
-        JSRuntime = jSRuntime;
+		this.JSRuntime = jSRuntime;
     }
 
     public async Task<T> EvalString<T>(string eval, bool useFunction = true, bool useStrict = true)
     {
-        return await JSRuntime!.InvokeAsync<T>("EvalHelper", eval, useFunction, useStrict);
+        return await this.JSRuntime!.InvokeAsync<T>("EvalHelper", eval, useFunction, useStrict);
     }
     public async Task<T> EvalStringWithVariables<T>(string eval, Dictionary<string, object> replace, bool useFunction = true, bool useStrict = true)
     {
@@ -25,6 +25,6 @@ public class EvalHelper
         {
             tmp.Replace(pair.Key, pair.Value.ToString());
         }
-        return await EvalString<T>(tmp, useFunction, useStrict);
+        return await this.EvalString<T>(tmp, useFunction, useStrict);
     }
 }

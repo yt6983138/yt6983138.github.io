@@ -38,10 +38,6 @@
 		<input id="InputNamesFileLocation" type="text" @bind="NamesFileLocation" />
 		<label>Custom info csv (Do not change it if you don't know what you are doing)</label>
 	</div>
-	<div id="DivSessionToken" class="InputBox">
-		<input id="InputSessionToken" type="text" @bind="SessionToken" />
-		<label>Get save by session token [Experimental]</label>
-	</div>
 	<div id="DivInputUploadSaveFile" class="InputBox" style="margin: 10px 10px 10px -10px !important;">
 		<label for="InputUploadSaveFile" id="CustomUpload">Upload</label>
 		<InputFile id="InputUploadSaveFile" OnChange="OnLoadSave" />
@@ -53,7 +49,7 @@
 		<button id="ButtonOpenExport" @onclick=@(() => {Content = SubWindowContent.Export; SubWindowOpen = true;}) disabled=@(!Loaded)>Export</button>
 		<button id="ButtonOpenGraph" @onclick=@(() => {Content = SubWindowContent.Graph; SubWindowOpen = true;}) disabled=@(!Loaded)>Graph</button>
 		<button id="ButtonOpenLog" @onclick=@(() => {Content = SubWindowContent.Log; SubWindowOpen = true;})>Show logs</button>
-		<button id="ButtonGetSaveUsingToken" @onclick=OnGetSaveByToken>Get save by token</button>
+		<button id="ButtonOpenCloudSave" @onclick=@(() => {Content = SubWindowContent.CloudSave; SubWindowOpen = true;})>Cloud save...</button>
 		<div id="DivLabelStatus">
 			@{
 				string tmp = PageLogger.LatestLogMessageUnformatted;
@@ -73,16 +69,17 @@
 					<textarea id="LogTextarea" readonly>
 						@foreach (string str in PageLogger.AllLogs)
 						{
-							@str // </textarea> below
+							@str
+							// </textarea> below
 						} 
-																																									</textarea>
+																																																																	</textarea>
 				</div>
 				// ^ lmao auto format being too smart, also its a auto format counter lmao, more ctrl k+d, the more right it gets lmao
 				break;
 			case SubWindowContent.Export:
 				<div id="ExportBox" class="Windows" @onclick:stopPropagation=true>
 					<img id="ButtonExportBoxClose" class="WindowClose" @onclick="CloseSubWindow" src="/Assets/Generic/Icons/Close.svg"></img>
-					<div id="CountToExportGroup">
+					<div id="DateSelectorGroup">
 						<label id="CountToExportLabel">Number of items to export, put 0 to export all</label>
 						<input type="number" id="InputCountToExport" @bind="CountToExport" />
 					</div>
@@ -101,6 +98,35 @@
 				// InitChart();
 				break;
 			case SubWindowContent.CloudSave:
+				<div id="CloudSaveBox" class="Windows" @onclick:stopPropagation=true>
+					<img id="ButtonCloudSaveBoxClose" class="WindowClose" @onclick="CloseSubWindow" src="/Assets/Generic/Icons/Close.svg"></img>
+					<div id="SaveSelectorGroup">
+						@* <label id="SaveSelectorLabel">Select save time</label> *@
+						<select id="SaveSelector" Name="SaveSelector" size="@CloudSaves.Count" @bind=CurrentSelected>
+							<option value="" disabled selected>Select save time</option>
+							@{
+								int j = 0;
+							}
+							@foreach (var item in CloudSaves)
+							{
+								<option value="@j">@item.Save.ModificationTime.ToString()</option>
+								j++;
+							}
+						</select>
+					</div>
+					<div id="SessionTokenGroup" class="InputBox">
+						<input id="SessionTokenInput" type="password" @bind="SessionToken" />
+						<label>Get save by session token [Experimental]</label>
+						<p id="SessionTokenDescription">
+							This allows you to get save by your Phigros token.<br />
+							Having problem find it? Here's a <a href="https://potent-cartwheel-e81.notion.site/Phigros-Bot-f154a4b0ea6446c28f62149587cd5f31">guide</a>.<br />
+							<a href="https://github.com/7aGiven/PhigrosLibrary">Byte reader source</a> (I swear to god I don't wanna touch it again) <br />
+							Tips: You don't need to click "Load cloud save" again if you're just changing time
+						</p>
+					</div>
+					<label id="LabelStatusInBox">Last log: @((tmp.Length > 32) ? tmp.Substring(0, 29) + "..." : tmp)</label>
+					<button id="LoadCloudSave" @onclick=OnGetSaveByToken>Load cloud save</button>
+				</div>
 				break;
 			default:
 				SubWindowOpen = false;
@@ -112,7 +138,7 @@
 <div id="Scores" style="display: @(Loaded ? "unset" : "none")">
 	<table id="InfoTable">
 		<tr>
-			<th class="TableTitleTexts TableFirst">Diffculty/Info</th>
+			<th class="TableTitleTexts TableFirst">Difficulty/Info</th>
 			<th class="TableTitleTexts TableSecond">AP Count</th>
 			<th class="TableTitleTexts TableThird">FC Count</th>
 			<th class="TableTitleTexts TableForth">V Count</th>
@@ -144,7 +170,34 @@
 			</tr>
 		}
 	</table>
-	<table id="Scores.Table">
+	<table id="AboutMe">
+		<tr id="TableTitle">
+			<th class="TableTitleTexts TableFirst">Avatar</th>
+			<th class="TableTitleTexts TableSecond">Nickname</th>
+			<th class="TableTitleTexts TableThird">Username</th>
+			<th class="TableTitleTexts TableForth">Last modify</th>
+			<th class="TableTitleTexts TableFifth">Challenge Rank</th>
+		</tr>
+			<tr>
+				<td class="TableData TableFirst" style="padding: 0px 0px 0px 0px;">	
+				<img src="@($"/Assets/RksReader/Avatars/{(CurrentSummary.Avatar == "" ? "Introduction" : CurrentSummary.Avatar)}.png")" width="96" style="display: flex" />
+				</td>
+				<td class="TableData TableSecond">@(CurrentUserInfo.NickName)</td>
+				<td class="TableData TableThird">@(CurrentUserInfo.UserName)</td>
+				<td class="TableData TableForth">@(CurrentUserInfo.ModificationTime.ToString())</td>
+				<td class="TableData TableFifth" id="ChallengeCodeTD">
+					@{
+						string challenge = CurrentSummary.ChallengeCode.ToString();
+						string trimmed = challenge[^Math.Min(2, challenge.Length)..].TrimStart('0');
+					}
+					<div style="width: 100%; height:100%; position:relative">
+					<img src="@($"/Assets/RksReader/Challenge/{(challenge.Length > 2 ? challenge[0] : "0")}.png")" id="ChallengeImg" width="128" />
+					<span id="ChallengeText">@(trimmed.Length == 0 ? '0' : trimmed)</span>
+					</div>
+				</td>
+			</tr>
+	</table>
+	<table id="ScoresTable">
 		<tr id="TableTitle">
 			<th class="TableTitleTexts TableFirst">Number</th>
 			<th class="TableTitleTexts TableSecond">Song Name</th>
@@ -159,14 +212,15 @@
 		}
 		@foreach (var score in AllScores)
 		{
+			// if (score.Name == null) continue;
 			<tr>
 				<td class="TableData TableFirst">@("#" + ((index == 0) ? "φ" : index))</td>
-				<td class="TableData TableSecond">@(Names.ContainsKey(score.Name) ? Names[score.Name] : score.Name)</td>
+				<td class="TableData TableSecond">@(Names.TryGetValue(score.Name, out string? str) ? str : score.Name)</td>
 				<td class="TableData TableThird">@string.Format(ChartConstantFormat, @score.DifficultyName, @score.ChartConstant)</td>
 				<td class="TableData TableForth">@string.Format(ScoreStringFormat, @score.Score)</td>
 				<td class="TableData TableFifth">@string.Format(AccFormat, @score.Acc)</td>
 				<td class="TableData TableSixth">@string.Format(RksFormat, @score.GetRksCalculated())</td>
-				<td class="TableData TableSeventh"><img src="@IconUrl[score.Status]" width="64" height="64" /></td>
+				<td class="TableData TableSeventh"><img src="@IconUrl[score.Status]" width="64" /></td>
 			</tr>
 			index++;
 		}
