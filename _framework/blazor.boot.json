@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "yt6983138.github.io",
   "resources": {
-    "hash": "sha256-7nUmD9FpKO1n3R9fF3RKs9RvsgWDqSYtmMaTLEnQyk8=",
+    "hash": "sha256-OfeW2Bzs8u5ovSoqF+Cjnm3cavjn4htetWlJ8c/TDH4=",
     "jsModuleNative": {
       "dotnet.native.8.0.1.sbw5laa9df.js": "sha256-SGOlISx+3G4kkvpC9Uq3qoPGsnjxGmW61QBev0lyI5U="
     },
@@ -56,7 +56,7 @@
       "System.ComponentModel.Primitives.wasm": "sha256-EmzpyS7R/ATKFxio28JyNu2r1g8bD42h0Ld0gD+Apwo=",
       "System.ComponentModel.TypeConverter.wasm": "sha256-RCgLv9TG8AQULc/7V9I73BncEhjwrjjzWx7AnrK7wNw=",
       "System.ComponentModel.wasm": "sha256-E+mqFzhd7sPhlJxjfF6kzqbOB4iRtppcWd63F4oDTRM=",
-      "System.Console.wasm": "sha256-nPu7EHRHGK4jMiPurKdjdIFQVhm1VCFhKl/XmpDx/zc=",
+      "System.Console.wasm": "sha256-3xRRdkM1a9Da1C3wLibgMZQcRWqnWfH8rTGoXGgIMQ0=",
       "System.Data.Common.wasm": "sha256-cfKhfoWizNL9oXqhJqpWvXfw8hm2IXMhSchr6bUiO4A=",
       "System.Diagnostics.DiagnosticSource.wasm": "sha256-cWQjQMR1E1hKkNbTDLbvU/FWrmmg0Db4smd3YlcLgEQ=",
       "System.Diagnostics.Process.wasm": "sha256-5dJWZsGq62uTJUW0dEypMBhfADC+7AOexBh0WSZVolw=",
@@ -76,7 +76,7 @@
       "System.Net.Sockets.wasm": "sha256-UUXzs5I4eaBLgX2mhYIPqbD6XnW0HXRG6WmY8xIRcUU=",
       "System.Numerics.Vectors.wasm": "sha256-0+T4MCder0dQY0X74Z/Y2a5wyvphBXmu8b9pVroAE58=",
       "System.ObjectModel.wasm": "sha256-NMQO9VdRAxC2hExbw74IuhPF7UPK7iYX+DKNbA/y1xw=",
-      "System.Private.CoreLib.wasm": "sha256-ZMhv+st0WLjuHtEq1M1TD/QMPrduCJ0GRWU1HTebi5o=",
+      "System.Private.CoreLib.wasm": "sha256-SBNT9Emm2TJdIRP5tKWuvJ01Py6I2DY2+nELCK51Awk=",
       "System.Private.Uri.wasm": "sha256-NUFG24eMw1/jhkT/firIozExi1yU34t5Rp+zwd3alAw=",
       "System.Private.Xml.Linq.wasm": "sha256-t6UK1pCapBQdeKW99nd+5XxXGvMsmrhcbONudC1y6T4=",
       "System.Private.Xml.wasm": "sha256-G4Jvzpf6UzPFPHcatgaZjf8Uj5wxyPnG6FKkMURoBLA=",
@@ -106,7 +106,7 @@
       "System.Xml.ReaderWriter.wasm": "sha256-PkaH/hSgwl2xz5SDj+IBh4XG+ONxxxIlKy0priDaouI=",
       "System.Xml.XDocument.wasm": "sha256-Dkx5bXa73mUhK8Ytn/EWY8MldQECT9QKXe356ZT3bcc=",
       "System.Xml.XPath.XDocument.wasm": "sha256-0GQLthT7krrpBp94n+tXIYP3HhHX7YC6lpy2drhp3c8=",
-      "yt6983138.github.io.wasm": "sha256-xGc0usgsLqzG1I+D+5qlJUN4AlMuaKt2lJqsInQ6rzA="
+      "yt6983138.github.io.wasm": "sha256-uL0KKJ1RM7eHSdVpTYLxcjPJHRBJeruwgXoyGcT/B3c="
     },
     "satelliteResources": {
       "cs": {

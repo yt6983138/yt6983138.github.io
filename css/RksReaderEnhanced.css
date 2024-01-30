@@ -99,7 +99,27 @@
     right: 15px;
 }
 #SaveSelectorGroup {
+    position: absolute;
+    height: 100%;
+    right: 60%;
+    top: 0;
     z-index: 6;
+    width:40%;
+}
+#EntriesAndSelectorGroup {
+    left: 5%;
+    right: 5%;
+    bottom: 35px;
+    position: absolute;
+    margin: auto auto;
+    width: 90%;
+    height: 40%;
+}
+#MaxEntriesSelectorGroup {
+    top: 0;
+    position: absolute;
+    left: 40%;
+    width: 60%;
 }
 #Graph {
     /*position: absolute;*/
