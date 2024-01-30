@@ -72,16 +72,16 @@
 							@str
 							// </textarea> below
 						} 
-																																																																	</textarea>
+																																																																							</textarea>
 				</div>
 				// ^ lmao auto format being too smart, also its a auto format counter lmao, more ctrl k+d, the more right it gets lmao
 				break;
 			case SubWindowContent.Export:
 				<div id="ExportBox" class="Windows" @onclick:stopPropagation=true>
 					<img id="ButtonExportBoxClose" class="WindowClose" @onclick="CloseSubWindow" src="/Assets/Generic/Icons/Close.svg"></img>
-					<div id="DateSelectorGroup">
-						<label id="CountToExportLabel">Number of items to export, put 0 to export all</label>
+					<div id="CountToExportGroup">
 						<input type="number" id="InputCountToExport" @bind="CountToExport" />
+						<label id="CountToExportLabel">Number of items to export, put 0 to export all</label>
 					</div>
 					<button class="ExportButtons" id="ExportCsv" @onclick="ExportCSV">Export CSV</button>
 					<button class="ExportButtons" id="ExportJson" @onclick="ExportJSON">Export Json</button>
@@ -100,20 +100,6 @@
 			case SubWindowContent.CloudSave:
 				<div id="CloudSaveBox" class="Windows" @onclick:stopPropagation=true>
 					<img id="ButtonCloudSaveBoxClose" class="WindowClose" @onclick="CloseSubWindow" src="/Assets/Generic/Icons/Close.svg"></img>
-					<div id="SaveSelectorGroup">
-						@* <label id="SaveSelectorLabel">Select save time</label> *@
-						<select id="SaveSelector" Name="SaveSelector" size="@CloudSaves.Count" @bind=CurrentSelected>
-							<option value="" disabled selected>Select save time</option>
-							@{
-								int j = 0;
-							}
-							@foreach (var item in CloudSaves)
-							{
-								<option value="@j">@item.Save.ModificationTime.ToString()</option>
-								j++;
-							}
-						</select>
-					</div>
 					<div id="SessionTokenGroup" class="InputBox">
 						<input id="SessionTokenInput" type="password" @bind="SessionToken" />
 						<label>Get save by session token [Experimental]</label>
@@ -123,6 +109,26 @@
 							<a href="https://github.com/7aGiven/PhigrosLibrary">Byte reader source</a> (I swear to god I don't wanna touch it again) <br />
 							Tips: You don't need to click "Load cloud save" again if you're just changing time
 						</p>
+					</div>
+					<div id="EntriesAndSelectorGroup">
+						<div id="SaveSelectorGroup">
+							@* <label id="SaveSelectorLabel">Select save time</label> *@
+							<select id="SaveSelector" Name="SaveSelector" size="@CloudSaves.Count" @bind=CurrentSelected>
+								<option value="" disabled selected>Select save time</option>
+								@{
+									int j = 0;
+								}
+								@foreach (var item in CloudSaves)
+								{
+									<option value="@j">@item.Save.ModificationTime.ToString()</option>
+									j++;
+								}
+							</select>
+						</div>
+						<div id="MaxEntriesSelectorGroup">
+							<input type="number" id="InputMaxEntries" @bind="MaxCloudSaveEntries" />
+							<label id="MaxEntriesLabel">Number of max saves to get (to prevent slow network), put 0 to get all</label>
+						</div>
 					</div>
 					<label id="LabelStatusInBox">Last log: @((tmp.Length > 32) ? tmp.Substring(0, 29) + "..." : tmp)</label>
 					<button id="LoadCloudSave" @onclick=OnGetSaveByToken>Load cloud save</button>
@@ -178,24 +184,24 @@
 			<th class="TableTitleTexts TableForth">Last modify</th>
 			<th class="TableTitleTexts TableFifth">Challenge Rank</th>
 		</tr>
-			<tr>
-				<td class="TableData TableFirst" style="padding: 0px 0px 0px 0px;">	
+		<tr>
+			<td class="TableData TableFirst" style="padding: 0px 0px 0px 0px;">
 				<img src="@($"/Assets/RksReader/Avatars/{(CurrentSummary.Avatar == "" ? "Introduction" : CurrentSummary.Avatar)}.png")" width="96" style="display: flex" />
-				</td>
-				<td class="TableData TableSecond">@(CurrentUserInfo.NickName)</td>
-				<td class="TableData TableThird">@(CurrentUserInfo.UserName)</td>
-				<td class="TableData TableForth">@(CurrentUserInfo.ModificationTime.ToString())</td>
-				<td class="TableData TableFifth" id="ChallengeCodeTD">
-					@{
-						string challenge = CurrentSummary.ChallengeCode.ToString();
-						string trimmed = challenge[^Math.Min(2, challenge.Length)..].TrimStart('0');
-					}
-					<div style="width: 100%; height:100%; position:relative">
+			</td>
+			<td class="TableData TableSecond">@(CurrentUserInfo.NickName)</td>
+			<td class="TableData TableThird">@(CurrentUserInfo.UserName)</td>
+			<td class="TableData TableForth">@(CurrentUserInfo.ModificationTime.ToString())</td>
+			<td class="TableData TableFifth" id="ChallengeCodeTD">
+				@{
+					string challenge = CurrentSummary.ChallengeCode.ToString();
+					string trimmed = challenge[^Math.Min(2, challenge.Length)..].TrimStart('0');
+				}
+				<div style="width: 100%; height:100%; position:relative">
 					<img src="@($"/Assets/RksReader/Challenge/{(challenge.Length > 2 ? challenge[0] : "0")}.png")" id="ChallengeImg" width="128" />
 					<span id="ChallengeText">@(trimmed.Length == 0 ? '0' : trimmed)</span>
-					</div>
-				</td>
-			</tr>
+				</div>
+			</td>
+		</tr>
 	</table>
 	<table id="ScoresTable">
 		<tr id="TableTitle">

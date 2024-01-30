@@ -316,6 +316,7 @@ public partial class RksReaderEnhanced : ComponentBase
 			this.ChangeScores();
 		}
 	}
+	public int MaxCloudSaveEntries { get; set; } = 0;
 
 	public void ChangeScores()
 	{
@@ -343,11 +344,11 @@ public partial class RksReaderEnhanced : ComponentBase
 			PageLogger.Log(LoggerType.Info, "Loading CSVs...");
 			await this.LoadCSVs();
 			PageLogger.Log(LoggerType.Info, "Loading Save From Remote...");
-			this.CloudSaves = await SaveHelper.GetGameSaves(this.Difficulties);
+			this.CloudSaves = await SaveHelper.GetGameSaves(this.Difficulties, MaxCloudSaveEntries < 1 ? int.MaxValue : MaxCloudSaveEntries);
 			this.CurrentUserInfo = await SaveHelper.GetUserInfo();
 			// Console.WriteLine(CloudSaves.Count);
 			this.AllScores = new List<InternalScoreFormat>(CloudSaves[^1].Save.Records); // latest
-			this.CurrentSummary = CloudSaves[^1].Summary; // latest
+			this.CurrentSummary = CloudSaves[0].Summary; // latest
 		} 
 		catch (Exception ex)
 		{
