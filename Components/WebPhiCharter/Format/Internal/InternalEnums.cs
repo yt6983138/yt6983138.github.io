@@ -2,11 +2,11 @@
 
 public enum InternalNoteType
 {
-	Tap,
-	Hold,
-	Drag,
-	Flick,
-	Custom
+	Tap = 1,
+	Drag = 2,
+	Hold = 3,
+	Flick = 4,
+	Custom = -1
 }
 public enum InternalEventInterpolateMode
 {

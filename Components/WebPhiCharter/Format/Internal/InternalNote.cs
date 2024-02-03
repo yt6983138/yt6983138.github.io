@@ -38,7 +38,12 @@ public class InternalNote
 	}
 	public InternalNote(in List<InternalBPMEvent> bpmEvents, in List<InternalSpeedEvent> speedEvents, OfficialNote officialNote)
 	{
-		// todo
+		InternalNoteType type = (InternalNoteType)officialNote.type;
+		this.SetTime(in bpmEvents, in speedEvents, Utils.OfficialChartTimeToBeatInfo(officialNote.time));
+		if (officialNote.holdTime != 0 && type == InternalNoteType.Hold)
+		{
+			this.SetHoldLength(in bpmEvents, in speedEvents, Utils.OfficialChartTimeToBeatInfo(officialNote.holdTime));
+		}
 	}
 	// no auto properties sad
 	public void SetHoldLength(in List<InternalBPMEvent> bpmEvents, in List<InternalSpeedEvent> speedEvents, BeatInfo length)

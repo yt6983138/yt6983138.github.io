@@ -39,8 +39,8 @@ public partial class RksReaderEnhanced : ComponentBase
 	public string AccFormat { get; set; } = "{0:0.00}%";
 	public string RksFormat { get; set; } = "{0:0.00}";
 	public string ChartConstantFormat { get; set; } = "{0} {1:0.0}";
-	public string DifficultyFileLocation { get; set; } = "/Assets/RksReader/3.4.2/difficulty.csv";
-	public string NamesFileLocation { get; set; } = "/Assets/RksReader/3.4.2/info.csv";
+	public string DifficultyFileLocation { get; set; } = "/Assets/RksReader/3.4.3/difficulty.csv";
+	public string NamesFileLocation { get; set; } = "/Assets/RksReader/3.4.3/info.csv";
 	public string SessionToken { get; set; } = string.Empty;
 	#endregion
 
@@ -316,7 +316,7 @@ public partial class RksReaderEnhanced : ComponentBase
 			this.ChangeScores();
 		}
 	}
-	public int MaxCloudSaveEntries { get; set; } = 0;
+	public int MaxCloudSaveEntries { get; set; } = 3;
 
 	public void ChangeScores()
 	{

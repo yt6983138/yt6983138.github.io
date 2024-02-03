@@ -5,6 +5,9 @@ namespace yt6983138.github.io.Components.WebPhiCharter;
 [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
 public class OfficialNote
 {
+	public const float PosXMagicNumber = 8.95522403717041f * 2;
+
+
 	/// <summary>
 	/// 1: tap
 	/// 2: drag
@@ -16,11 +19,11 @@ public class OfficialNote
 	/// time 32 bpm 60 = 1 sec
 	/// time 64 bpm 120 = 1 sec
 	/// </summary>
-	public float time { get; set; }
+	public int time { get; set; }
 	/// <summary>
 	/// uh same as time ig
 	/// </summary>
-	public float holdTime { get; set; }
+	public int holdTime { get; set; }
 	/// <summary>
 	/// speed, 1 = 1x
 	/// </summary>
@@ -33,4 +36,16 @@ public class OfficialNote
 	/// floor pos 1 = 0.5 screen height
 	/// </summary>
 	public float floorPosition { get; set; }
+
+	public InternalNote ToInternal(in List<InternalBPMEvent> bpmEvents, in List<InternalSpeedEvent> speedEvents, bool isDownSide)
+	{
+		InternalNoteType type = (InternalNoteType)this.type;
+		return new InternalNote(in bpmEvents, in speedEvents, this)
+		{
+			IsDownSide = isDownSide,
+			NoteType = type,
+			PosX = (positionX / PosXMagicNumber) + 0.5f
+		};
+
+	}
 }

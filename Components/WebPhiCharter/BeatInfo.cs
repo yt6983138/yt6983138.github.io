@@ -83,13 +83,18 @@ public class BeatInfo
 	{
 		return second < first;
 	}
-	public static bool operator ==(BeatInfo first, BeatInfo second)
+	public static bool operator ==(BeatInfo? first, BeatInfo? second)
 	{
+		if (first is null)
+		{
+			if (second is null) return true;
+			return false;
+		}
 		return first.Equals(second);
 	}
-	public static bool operator !=(BeatInfo first, BeatInfo second)
+	public static bool operator !=(BeatInfo? first, BeatInfo? second)
 	{
-		return !first.Equals(second);
+		return !(first == second);
 	}
 	public static BeatInfo operator +(BeatInfo first, BeatInfo second)
 	{
