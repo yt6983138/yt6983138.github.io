@@ -1,15 +1,15 @@
 {
   "mainAssemblyName": "yt6983138.github.io",
   "resources": {
-    "hash": "sha256-zzEYiyIwaxaXUz2NrOyO6y+v3j9VuIUzklib9bSAi1c=",
+    "hash": "sha256-WI9o2IUxxmaJhgWwKee2CJP1rh7FgpfbuFtoVxBf/0Q=",
     "jsModuleNative": {
-      "dotnet.native.8.0.1.98slucuo3a.js": "sha256-J4QNredhCGc4M6cCDy0AeLYxTyYupGHoM6Ndr/rOPhE="
+      "dotnet.native.8.0.1.98slucuo3a.js": "sha256-oM1T28m8ZCwtO1ra+GBio6VKnk5H7qr2otAsqyO5enQ="
     },
     "jsModuleRuntime": {
       "dotnet.runtime.8.0.1.rswtxkdyko.js": "sha256-HZOoaGpz9ekMa/oSmeApSKp3DXNdVUq2UBqsTIIiN8A="
     },
     "wasmNative": {
-      "dotnet.native.wasm": "sha256-OjjcH2Qv5o1sRqXYMI0R6A80lRNYWcbqa2wM4CemGaw="
+      "dotnet.native.wasm": "sha256-gtqmfnNlXFfAsRQBMyYKDx9NZ+5sSBFU8Q+aDBV2Yog="
     },
     "icu": {
       "icudt_CJK.dat": "sha256-SZLtQnRc0JkwqHab0VUVP7T3uBPSeYzxzDnpxPpUnHk=",
@@ -106,7 +106,7 @@
       "System.Xml.ReaderWriter.wasm": "sha256-PkaH/hSgwl2xz5SDj+IBh4XG+ONxxxIlKy0priDaouI=",
       "System.Xml.XDocument.wasm": "sha256-Dkx5bXa73mUhK8Ytn/EWY8MldQECT9QKXe356ZT3bcc=",
       "System.Xml.XPath.XDocument.wasm": "sha256-0GQLthT7krrpBp94n+tXIYP3HhHX7YC6lpy2drhp3c8=",
-      "yt6983138.github.io.wasm": "sha256-xc1iPx4YD31YRhf/hvkT19OduOs5Ee9P67ieVpuQvZw="
+      "yt6983138.github.io.wasm": "sha256-XtRigw2yjUecRuNnOOby/I6G/8L0rURq3VXpfHDRFHs="
     },
     "satelliteResources": {
       "cs": {
