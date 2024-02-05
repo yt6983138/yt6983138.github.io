@@ -333,7 +333,8 @@ public partial class RksReaderEnhanced : ComponentBase
 		{
 			SaveHelper = new() { Runtime = this.JS };
 			SaveHelper.InitializeCloudHelper(this.SessionToken);
-		} catch
+		}
+		catch
 		{
 			PageLogger.Log(LoggerType.Error, "Invalid token!");
 			this.IsLoading = false;
@@ -347,16 +348,18 @@ public partial class RksReaderEnhanced : ComponentBase
 			this.CloudSaves = await SaveHelper.GetGameSaves(this.Difficulties, MaxCloudSaveEntries < 1 ? int.MaxValue : MaxCloudSaveEntries);
 			this.CurrentUserInfo = await SaveHelper.GetUserInfo();
 			// Console.WriteLine(CloudSaves.Count);
-			this.AllScores = new List<InternalScoreFormat>(CloudSaves[^1].Save.Records); // latest
-			this.CurrentSummary = CloudSaves[0].Summary; // latest
-		} 
+		}
 		catch (Exception ex)
 		{
 			PageLogger.Log(LoggerType.Error, ex);
+			this.IsLoading = false;
+			this.Loaded = false;
+			return;
 		}
 		this.IsLoading = false;
 		this.Loaded = true;
-		this.RenderAll();
+		this.CurrentSelected = "0";
+		// this.RenderAll();
 		PageLogger.Log(LoggerType.Info, "Done Loading!");
 	}
 	#endregion
@@ -433,7 +436,7 @@ public partial class RksReaderEnhanced : ComponentBase
 			try
 			{
 				this.DecryptedXml.Add(
-					SaveHelper.DecryptSaveStringNew(System.Net.WebUtility.UrlDecode(pair.Key)), 
+					SaveHelper.DecryptSaveStringNew(System.Net.WebUtility.UrlDecode(pair.Key)),
 					SaveHelper.DecryptSaveStringNew(System.Net.WebUtility.UrlDecode(pair.Value))
 				);
 			}
