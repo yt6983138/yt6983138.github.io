@@ -1,4 +1,6 @@
-﻿namespace yt6983138.github.io.Components.WebPhiCharter;
+﻿using yt6983138.Common;
+
+namespace yt6983138.github.io.Components.WebPhiCharter;
 
 public static class Misc
 {

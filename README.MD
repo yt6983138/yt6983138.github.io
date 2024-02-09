@@ -4,8 +4,8 @@ This is my personal website, it is for testing and implementing some fun utiliti
 ## Contents
 ### [RksReaderEnhanced](https://yt6983138.github.io/RksReaderEnhanced/index.html)
 This is a cool utility that allow you get scores by your cloud save token or local save file. <br/>
-Here's a video explaining it: <br/>
-TODO: put video here <br/>
+Here's a video explaining it: https://www.bilibili.com/video/BV1sJ4m1t7N7/ <br/>
+Youtube version: https://youtu.be/W7M-QOBaktM
 
 ### WebPhiCharter
 WIP project, it's a Phigros charter. (kinda dead bruh)

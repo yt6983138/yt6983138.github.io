@@ -5,6 +5,7 @@ using System.Text;
 using System.Xml;
 using yt6983138.github.io;
 using yt6983138.github.io.RksReaderEnhanced;
+using yt6983138.Common;
 
 namespace yt6983138.github.io.Pages;
 
@@ -354,6 +355,7 @@ public partial class RksReaderEnhanced : ComponentBase
 			PageLogger.Log(LoggerType.Error, ex);
 			this.IsLoading = false;
 			this.Loaded = false;
+			Reset();
 			return;
 		}
 		this.IsLoading = false;

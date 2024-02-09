@@ -26,4 +26,8 @@
     <None Include="wwwroot\RksReaderEnhanced\testFile.xml" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\yt6983138\yt6983138.csproj" />
+  </ItemGroup>
+
 </Project>
