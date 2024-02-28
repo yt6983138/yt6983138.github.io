@@ -1,0 +1,37 @@
+﻿@page "/114514ScoreGenerator/index.html"
+<div id="Main">
+	<div id="InputArea">
+		<div class="InputGroup">
+			<label class="Explanation">Score wanted (ex. 114514)</label>
+			<input type="number" id="TargetScore" placeholder="Target score" @bind=ScoreWanted />
+		</div>
+		<div class="InputGroup">
+			<label class="Explanation">Note count of the chart (ex. 627)</label>
+			<input type="number" id="NoteCount" placeholder="Note count" @bind=NoteCount />
+		</div>
+	</div>
+	<div id="Buttons">
+		<button id="Calculate" @onclick=Calculate>Calculate!</button>
+	</div>
+	<div id="OutputArea">
+		<div class="OutputGroup">
+			<label class="Explanation">Good needed</label>
+			<input type="number" id="GoodRequired" placeholder="Good count" readonly @bind=GoodRequired />
+		</div>
+		<div class="OutputGroup">
+			<label class="Explanation">Perfect needed</label>
+			<input type="number" id="PerfectRequired" placeholder="Perfect count" readonly @bind=PerfectRequired />
+		</div>
+		<div class="OutputGroup">
+			<label class="Explanation">Combo needed</label>
+			<input type="number" id="ComboRequired" placeholder="Combo count" readonly @bind=ComboRequired />
+		</div>
+		<div class="OutputGroup">
+			<label class="Explanation">Final calculated score</label>
+			<input type="number" id="CalculatedScore" readonly @bind=CalculatedScore />
+		</div>
+		<div class="OutputGroup">
+			<label id="Status">@Status</label>
+		</div>
+	</div>
+</div>

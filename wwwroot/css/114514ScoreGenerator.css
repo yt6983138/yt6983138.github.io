@@ -1,0 +1,19 @@
+﻿#Background {
+    background-image: url(/Assets/Generic/Background/IndexBackground.png);
+}
+.Main {
+    width: fit-content;
+    height: fit-content;
+}
+#InputArea {
+    width: 40%;
+    height:100%;
+}
+#Buttons {
+    width: 20%;
+    height: 100%;
+}
+#OutputArea {
+    width: 40%;
+    height: 100%;
+}
