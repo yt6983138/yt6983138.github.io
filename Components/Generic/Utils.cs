@@ -1,6 +1,4 @@
-﻿using yt6983138.github.io.Components.WebPhiCharter;
-
-namespace yt6983138.github.io;
+﻿namespace yt6983138.github.io;
 public static class Utils
 {
 	public static int GCD(int a, int b)
@@ -115,16 +113,5 @@ public static class Utils
 	public static float Range(float min, float num, float max)
 	{
 		return Math.Max(Math.Min(max, num), min);
-	}
-	public static float OfficialChartTimeToMS(float BPM, float time)
-	{
-		// 1/(x/60) * (time / 32) * 1000
-		return (1875f * time / BPM);
-	}
-	public static BeatInfo OfficialChartTimeToBeatInfo(int time)
-	{
-		int gcd = GCD(32, time);
-		gcd = gcd == 0 ? 1 : gcd;
-		return new BeatInfo(0, 32 / gcd, time / gcd);
 	}
 }
