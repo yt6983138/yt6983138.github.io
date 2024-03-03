@@ -22,7 +22,7 @@
       "launchBrowser": true,
       "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
       "applicationUrl": "https://localhost:7219;http://localhost:5291",
-      "launchUrl": "114514ScoreGenerator/index.html",
+      "launchUrl": "RksReaderEnhanced/index.html",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

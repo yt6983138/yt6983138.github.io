@@ -113,12 +113,30 @@ public class ByteReader // fuck my brain is going to explode if i keep working o
 	}
 	public List<InternalScoreFormat> ReadAll(in IReadOnlyDictionary<string, float[]> difficulties)
 	{
-		int headerLength = Data[0] switch
+		int headerLength;
+		// auto detection
+		string first64 = Encoding.ASCII.GetString(Data[0..64]);
+		int glaciaxionLocation = first64.IndexOf("Glaciaxion");
+		int nonMelodicLocation = first64.IndexOf("NonMelodic");
+		if (glaciaxionLocation != -1)
 		{
-			0x9D => 2, // i have no idea what those are
-			0x7E => 1,
-			_ => 2
-		};
+			headerLength = glaciaxionLocation - 1;
+		}
+		else if (nonMelodicLocation != -1) // old version compatibility
+		{
+			headerLength = nonMelodicLocation - 1;
+		}
+		else // fall back manual detection
+		{
+			headerLength = Data[0] switch
+			{
+				0x9D => 2, // i have no idea what those are
+				0x7E => 1,
+				0x2B => 24,
+				_ => 2
+			};
+		}
+
 		this.ReadHeader(headerLength);
 		List<InternalScoreFormat> scores = new();
 		while (this.Offset < this.Data.Length)

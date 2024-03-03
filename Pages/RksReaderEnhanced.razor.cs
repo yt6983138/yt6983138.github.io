@@ -40,8 +40,8 @@ public partial class RksReaderEnhanced : ComponentBase
 	public string AccFormat { get; set; } = "{0:0.00}%";
 	public string RksFormat { get; set; } = "{0:0.00}";
 	public string ChartConstantFormat { get; set; } = "{0} {1:0.0}";
-	public string DifficultyFileLocation { get; set; } = "/Assets/RksReader/3.5.0/difficulty.csv";
-	public string NamesFileLocation { get; set; } = "/Assets/RksReader/3.5.0/info.csv";
+	public string DifficultyFileLocation { get; set; } = "/Assets/RksReader/Latest/difficulty.csv";
+	public string NamesFileLocation { get; set; } = "/Assets/RksReader/Latest/info.csv";
 	public string SessionToken { get; set; } = string.Empty;
 	#endregion
 
