@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using System;
 using System.Numerics;
 using System.Reflection;
 
@@ -83,10 +82,12 @@ public class CanvasHelper
 		this.ID = Path.GetRandomFileName();
 		runtime!.InvokeVoidAsync("GetCanvasByElementID", elementIdToCatch, this.ID);
 	}
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 	private CanvasHelper()
 	{
 		return;
 	}
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 	#endregion
 
 	private async Task Run(string funcName, params object?[]? args)
@@ -114,7 +115,7 @@ public class CanvasHelper
 	public async void Rect(float x, float y, float width, float height) => await this.Run("rect", x, y, width, height);
 	public async void Reset()
 	{
-		var tmp = this.Default;
+		CanvasHelper tmp = this.Default;
 		foreach (FieldInfo info in this.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic))
 		{
 			if (info.Name == "<runtime>k__BackingField" || info.Name == "ID") continue;

@@ -18,22 +18,22 @@ public partial class _114514ScoreGenerator
 
 	public void Calculate()
 	{
-		if (NoteCount < 1 ||
-			ScoreWanted < 0 ||
-			ScoreWanted > 1000000)
+		if (this.NoteCount < 1 ||
+			this.ScoreWanted < 0 ||
+			this.ScoreWanted > 1000000)
 		{
-			Status = "Invalid Input!";
+			this.Status = "Invalid Input!";
 			return;
 		}
 
-		Status = "Calculating...";
+		this.Status = "Calculating...";
 
-		float perfectPointPerNote = 900000 / (float)NoteCount;
+		float perfectPointPerNote = 900000 / (float)this.NoteCount;
 		float goodPointPerNote = perfectPointPerNote * 0.65f;
 
-		for (int totalCount = 0; totalCount <= NoteCount; totalCount++)
+		for (int totalCount = 0; totalCount <= this.NoteCount; totalCount++)
 		{
-			if (totalCount * perfectPointPerNote > ScoreWanted + 1)
+			if (totalCount * perfectPointPerNote > this.ScoreWanted + 1)
 				goto Failed;
 
 			for (int perfectCount = totalCount; perfectCount > 0; perfectCount--)
@@ -43,35 +43,35 @@ public partial class _114514ScoreGenerator
 				float allGoodScore = goodPointPerNote * goodCount;
 				float noComboScore = allPerfectScore + allGoodScore;
 
-				if (noComboScore < ScoreWanted - 100001)
+				if (noComboScore < this.ScoreWanted - 100001)
 					break;
 
-				int estComboLess = (int)Utils.Range(1, (ScoreWanted - noComboScore) / 100000 * NoteCount - 1, totalCount);
+				int estComboLess = (int)Utils.Range(1, ((this.ScoreWanted - noComboScore) / 100000 * this.NoteCount) - 1, totalCount);
 				for (int combo = estComboLess; combo <= totalCount; combo++)
 				{
-					float comboScore = (float)combo / NoteCount * 100000;
+					float comboScore = (float)combo / this.NoteCount * 100000;
 					float withComboScore = noComboScore + comboScore;
 
 					//if (withComboScore > 100000)
 					//	Console.WriteLine(withComboScore );
-					if (withComboScore > ScoreWanted + 1)
+					if (withComboScore > this.ScoreWanted + 1)
 						break;
 
-					if ((int)Math.Round(withComboScore, MidpointRounding.ToEven) == ScoreWanted)
+					if ((int)Math.Round(withComboScore, MidpointRounding.ToEven) == this.ScoreWanted)
 					{
-						CalculatedScore = withComboScore.ToString();
-						GoodRequired = goodCount;
-						PerfectRequired = perfectCount;
-						ComboRequired = combo;
+						this.CalculatedScore = withComboScore.ToString();
+						this.GoodRequired = goodCount;
+						this.PerfectRequired = perfectCount;
+						this.ComboRequired = combo;
 
-						Status = "Solution found!";
+						this.Status = "Solution found!";
 						return;
 					}
 				}
 			}
 		}
 	Failed:
-		Status = "No solution found!";
+		this.Status = "No solution found!";
 		return;
 	}
 }

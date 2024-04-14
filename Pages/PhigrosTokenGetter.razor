@@ -1,0 +1,17 @@
+﻿@page "/PhigrosTokenGetter/index.html"
+
+<div id="LoginMain">
+	<img id="QRCodeImage" alt="@QRCodeAlt" src="@QRCodeBlob" />
+	<div id="LoginInfo">
+		<span>Login url:</span>
+		<a href="@LoginUrl" target="_blank" style="pointer-events: @(LoginUrl.Contains("taptap") ? "auto" : "none")">@LoginUrl</a>
+		<span>Expires at: @ExpiresAt.ToString(), in @ExpiresInSeconds seconds.</span>
+	</div>
+	<div id="TokenInfo">
+		<p>
+			Your token:
+		</p>
+		<textarea id="Token" readonly>@Token</textarea>
+	</div>
+	<button id="Regenerate" @onclick=Regenerate>Regenerate</button>
+</div>

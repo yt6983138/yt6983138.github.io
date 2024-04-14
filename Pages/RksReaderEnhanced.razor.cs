@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.JSInterop;
 using Newtonsoft.Json;
+using PhigrosLibraryCSharp;
+using PhigrosLibraryCSharp.Cloud.DataStructure;
 using System.Text;
 using System.Xml;
-using yt6983138.github.io;
-using yt6983138.github.io.RksReaderEnhanced;
 using yt6983138.Common;
 
 namespace yt6983138.github.io.Pages;
@@ -63,15 +64,11 @@ public partial class RksReaderEnhanced : ComponentBase
 	#endregion
 
 	#region misc
-	private static void LogWithExThrown(LoggerType type, string message, Exception ex)
-	{
-		PageLogger.Log(type, $"Exception thrown! {message}, Exception:");
-		PageLogger.Log(type, ex);
-	}
 	protected override void OnInitialized()
 	{
 		this.ChartHelper = new(this.JS);
 		this.downloadHelper = new(this.JS);
+		PageLogger.OnLog += async (_, _2) => await this.InvokeAsync(this.StateHasChanged);
 		base.OnInitialized();
 	}
 	#endregion
@@ -188,7 +185,7 @@ public partial class RksReaderEnhanced : ComponentBase
 		int i = 0;
 		CsvBuilder builder = new();
 		builder.AddHeader("Key encrypted", "Key decrypted", "Value encrypted", "Value decrypted");
-		foreach (var pair in this.RawParsedXml)
+		foreach (KeyValuePair<string, string> pair in this.RawParsedXml)
 		{
 			try
 			{
@@ -249,10 +246,10 @@ public partial class RksReaderEnhanced : ComponentBase
 			Name = "None",
 			Status = ScoreStatus.Bugged
 		});
-		PageLogger.Log(LoggerType.Info, "Sorting Save...");
+		PageLogger.Log(LogLevel.Information, "Sorting Save...");
 		int i = 0;
 		this.AllScores.Sort((x, y) => y.GetRksCalculated().CompareTo(x.GetRksCalculated()));
-		foreach (var score in this.AllScores)
+		foreach (InternalScoreFormat score in this.AllScores)
 		{
 			if (score.GetRksCalculated() > highest.score.GetRksCalculated() && score.Acc == 100)
 			{
@@ -262,7 +259,7 @@ public partial class RksReaderEnhanced : ComponentBase
 			i++;
 			try
 			{
-				var _info = this.Infos[score.DifficultyName.ToUpper()];
+				(int ap, int fc, int vu, int s, int a, int b, int c, int f, int cleared) _info = this.Infos[score.DifficultyName.ToUpper()];
 				switch (score.Status)
 				{
 					case ScoreStatus.Phi:
@@ -298,7 +295,7 @@ public partial class RksReaderEnhanced : ComponentBase
 			catch { }
 		}
 		//Scores.Sort((x, y) => x.GetRksCalculated().CompareTo(y.GetRksCalculated()));
-		PageLogger.Log(LoggerType.Info, "Sorting Save...");
+		PageLogger.Log(LogLevel.Information, "Sorting Save...");
 		// this.AllScores.Sort((x, y) => y.GetRksCalculated().CompareTo(x.GetRksCalculated()));
 		this.AllScores.Insert(0, highest.score);
 		//this.AllScores.MoveItemAtIndexToFront(highest.index);
@@ -324,7 +321,7 @@ public partial class RksReaderEnhanced : ComponentBase
 		if (this.IsLoading || !this.Loaded || !int.TryParse(this._currentSelected, out int value)) return;
 		this.AllScores = new List<InternalScoreFormat>(this.CloudSaves[value].Save.Records);
 		this.CurrentSummary = this.CloudSaves[value].Summary;
-		RenderAll(); // ^ to prevent modification to record list
+		this.RenderAll(); // ^ to prevent modification to record list
 	}
 	private async void OnGetSaveByToken()
 	{
@@ -332,37 +329,42 @@ public partial class RksReaderEnhanced : ComponentBase
 		this.IsLoading = true;
 		try
 		{
-			SaveHelper = new() { Runtime = this.JS };
+			SaveHelper = new()
+			{
+				Decrypter = async (key, iv, data)
+					=> await this.JS.InvokeAsync<byte[]>("AesDecrypt", data, key, iv)
+
+			};
 			SaveHelper.InitializeCloudHelper(this.SessionToken);
 		}
 		catch
 		{
-			PageLogger.Log(LoggerType.Error, "Invalid token!");
+			PageLogger.Log(LogLevel.Error, "Invalid token!");
 			this.IsLoading = false;
 			return;
 		}
 		try
 		{
-			PageLogger.Log(LoggerType.Info, "Loading CSVs...");
+			PageLogger.Log(LogLevel.Information, "Loading CSVs...");
 			await this.LoadCSVs();
-			PageLogger.Log(LoggerType.Info, "Loading Save From Remote...");
-			this.CloudSaves = await SaveHelper.GetGameSaves(this.Difficulties, MaxCloudSaveEntries < 1 ? int.MaxValue : MaxCloudSaveEntries);
-			this.CurrentUserInfo = await SaveHelper.GetUserInfo();
+			PageLogger.Log(LogLevel.Information, "Loading Save From Remote...");
+			this.CloudSaves = await SaveHelper.GetGameSavesAsync(this.Difficulties, this.MaxCloudSaveEntries < 1 ? int.MaxValue : this.MaxCloudSaveEntries);
+			this.CurrentUserInfo = await SaveHelper.GetUserInfoAsync();
 			// Console.WriteLine(CloudSaves.Count);
 		}
 		catch (Exception ex)
 		{
-			PageLogger.Log(LoggerType.Error, ex);
+			PageLogger.Log(LogLevel.Error, ex, "Error while loading CSV:");
 			this.IsLoading = false;
 			this.Loaded = false;
-			Reset();
+			this.Reset();
 			return;
 		}
 		this.IsLoading = false;
 		this.Loaded = true;
 		this.CurrentSelected = "0";
 		// this.RenderAll();
-		PageLogger.Log(LoggerType.Info, "Done Loading!");
+		PageLogger.Log(LogLevel.Information, "Done Loading!");
 	}
 	#endregion
 
@@ -373,14 +375,14 @@ public partial class RksReaderEnhanced : ComponentBase
 		this.IsLoading = true;
 		try
 		{
-			PageLogger.Log(LoggerType.Info, "Reading File...");
-			using (var reader = new StreamReader(e.File.OpenReadStream(MaxFileSize), System.Text.Encoding.UTF8))
+			PageLogger.Log(LogLevel.Information, "Reading File...");
+			using (StreamReader reader = new(e.File.OpenReadStream(MaxFileSize), System.Text.Encoding.UTF8))
 			{
 				this.SaveFileContent = await reader.ReadToEndAsync();
 			}
-			PageLogger.Log(LoggerType.Info, "Creating reader...");
+			PageLogger.Log(LogLevel.Information, "Creating reader...");
 			XmlReader xmlReader = XmlReader.Create(new StringReader(this.SaveFileContent)); // cant use e.File.OpenReadStream
-			PageLogger.Log(LoggerType.Info, "Parsing XML...");
+			PageLogger.Log(LogLevel.Information, "Parsing XML...");
 			while (xmlReader.Read())
 			{
 				switch (xmlReader.NodeType)
@@ -401,26 +403,26 @@ public partial class RksReaderEnhanced : ComponentBase
 		}
 		catch (Exception ex)
 		{
-			PageLogger.Log(LoggerType.Error, ex);
+			PageLogger.Log(LogLevel.Error, ex, "Error while parsing XML ");
 		}
-		PageLogger.Log(LoggerType.Info, "Decrypting Save...");
+		PageLogger.Log(LogLevel.Information, "Decrypting Save...");
 		this.DecryptSave();
-		PageLogger.Log(LoggerType.Info, "Loading CSVs...");
+		PageLogger.Log(LogLevel.Information, "Loading CSVs...");
 		await this.LoadCSVs();
 		// done load csv
-		PageLogger.Log(LoggerType.Info, "Filtering Save...");
+		PageLogger.Log(LogLevel.Information, "Filtering Save...");
 		this.FilterSave();
 		this.CurrentUserInfo = new()
 		{
-			UserName = DecryptedXml.TryGetValue("playerID", out string? str1) ? str1 : "*Unknown*",
-			ModificationTime = DecryptedXml.TryGetValue("saveBaseTime", out string? str2) ? DateTime.Parse(str2) : DateTime.UnixEpoch,
+			UserName = this.DecryptedXml.TryGetValue("playerID", out string? str1) ? str1 : "*Unknown*",
+			ModificationTime = this.DecryptedXml.TryGetValue("saveBaseTime", out string? str2) ? DateTime.Parse(str2) : DateTime.UnixEpoch,
 			CreationTime = DateTime.UnixEpoch,
 			NickName = "*Unknown*"
 		};
 		this.CurrentSummary = new()
 		{
 			Avatar = string.Empty,
-			ChallengeCode = DecryptedXml.TryGetValue("ChallengeModeRank", out string? str3) ? ushort.Parse(str3) : (ushort)0,
+			ChallengeCode = this.DecryptedXml.TryGetValue("ChallengeModeRank", out string? str3) ? ushort.Parse(str3) : (ushort)0,
 			GameVersion = -1,
 			SaveVersion = -1,
 			Clears = new()
@@ -428,11 +430,11 @@ public partial class RksReaderEnhanced : ComponentBase
 		this.RenderAll();
 		this.IsLoading = false;
 		this.Loaded = true;
-		PageLogger.Log(LoggerType.Info, "Done Loading!");
+		PageLogger.Log(LogLevel.Information, "Done Loading!");
 	}
 	public void DecryptSave()
 	{
-		foreach (var pair in this.RawParsedXml)
+		foreach (KeyValuePair<string, string> pair in this.RawParsedXml)
 		{
 			if (System.Net.WebUtility.UrlDecode(pair.Key).Length % 4 != 0) { continue; }
 			try
@@ -444,7 +446,7 @@ public partial class RksReaderEnhanced : ComponentBase
 			}
 			catch (Exception ex)
 			{
-				LogWithExThrown(LoggerType.Error, $"Processing {pair.Key}, {pair.Value}", ex);
+				PageLogger.Log(LogLevel.Error, ex, "Processing {key}, {Value}", pair.Key, pair.Value);
 			}
 		}
 	}
@@ -467,7 +469,7 @@ public partial class RksReaderEnhanced : ComponentBase
 			}
 			catch (Exception ex)
 			{
-				PageLogger.Log(LoggerType.Error, ex);
+				PageLogger.Log(LogLevel.Error, ex, "Error while parsing CSV ");
 			}
 		}
 		string[] csvFile2 = (await this.Http.GetStringAsync(this.NamesFileLocation)).Replace("\r", "").Split("\n");
@@ -480,13 +482,13 @@ public partial class RksReaderEnhanced : ComponentBase
 			}
 			catch (Exception ex)
 			{
-				PageLogger.Log(LoggerType.Error, ex);
+				PageLogger.Log(LogLevel.Error, ex, "Error while parsing CSV 2");
 			}
 		}
 	}
 	public void FilterSave()
 	{
-		foreach (var pair in this.DecryptedXml)
+		foreach (KeyValuePair<string, string> pair in this.DecryptedXml)
 		{
 			if (pair.Key.Split('.').Length < 4)
 			{
@@ -507,7 +509,7 @@ public partial class RksReaderEnhanced : ComponentBase
 			}
 			catch (Exception ex)
 			{
-				LogWithExThrown(LoggerType.Error, $"Processing {pair.Key}, {pair.Value}", ex);
+				PageLogger.Log(LogLevel.Error, ex, "Processing {Key}, {Value}", pair.Key, pair.Value);
 			}
 		}
 	}

@@ -7,14 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Components\RksReaderEnhanced\Cloud\UserInfoRaw.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="KristofferStrube.Blazor.FileSystemAccess" Version="3.2.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.0" PrivateAssets="all" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="QRCoderNetCore" Version="1.0.0" />
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
   </ItemGroup>
 
@@ -24,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PhigrosLibraryCSharp\PhigrosLibraryCSharp.csproj" />
     <ProjectReference Include="..\yt6983138\yt6983138.csproj" />
   </ItemGroup>
 

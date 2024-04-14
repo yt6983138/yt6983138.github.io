@@ -106,7 +106,7 @@ public static class Utils
 			else
 			{
 				// Middle is our best fraction
-				return ((n * middle_d + middle_n) * sign, middle_d);
+				return (((n * middle_d) + middle_n) * sign, middle_d);
 			}
 		}
 	}

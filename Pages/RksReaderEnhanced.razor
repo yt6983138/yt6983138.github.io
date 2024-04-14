@@ -3,7 +3,6 @@
 @using Microsoft.AspNetCore.Components.Forms
 @using System.Xml
 @using System.Text
-@using yt6983138.github.io.RksReaderEnhanced;
 
 @inject IJSRuntime JS
 @inject HttpClient Http
@@ -67,7 +66,7 @@
 				<div id="LogBox" class="Windows" @onclick:stopPropagation=true>
 					<img id="ButtonLogBoxClose" class="WindowClose" @onclick="CloseSubWindow" src="/Assets/Generic/Icons/Close.svg"></img>
 					<textarea id="LogTextarea" readonly>
-						@foreach (string str in PageLogger.AllLogs)
+						@foreach (string str in Logger.AllLogs)
 						{
 							@str
 							// </textarea> below
@@ -136,7 +135,7 @@
 				break;
 			default:
 				SubWindowOpen = false;
-				PageLogger.Log(LoggerType.Warning, "Cannot Open SubWindow: Content not set!");
+				PageLogger.Log(LogLevel.Warning, "Cannot Open SubWindow: Content not set!");
 				break;
 		}
 	</div>
