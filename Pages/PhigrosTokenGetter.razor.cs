@@ -2,9 +2,6 @@
 using Microsoft.JSInterop;
 using PhigrosLibraryCSharp.Cloud.Login;
 using PhigrosLibraryCSharp.Cloud.Login.DataStructure;
-using QRCoder;
-using System.Drawing;
-using System.Drawing.Imaging;
 
 namespace yt6983138.github.io.Pages;
 
@@ -14,26 +11,35 @@ public partial class PhigrosTokenGetter
 	[Inject]
 	private IJSRuntime JS { get; set; }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+	private bool _useChinaEndpoint = false;
 
-	public string QRCodeBlob { get; set; } = "";
 	public string QRCodeAlt { get; set; } = "";
 	public string LoginUrl { get; private set; } = "";
 	public CompleteQRCodeData? LoginTarget { get; set; }
 	public DateTime ExpiresAt { get; set; }
 	public int ExpiresInSeconds { get; set; } = 0;
-	public bool UseChinaEndpoint { get; set; } = false;
+	public bool UseChinaEndpoint
+	{
+		get => this._useChinaEndpoint;
+		set
+		{
+			this._useChinaEndpoint = value;
+			this.Regenerate();
+		}
+	}
 	public string Token { get; set; } = "";
 	public bool Generating { get; private set; }
 	protected override void OnInitialized()
 	{
 		LCHelper.GetMD5HashHexString = async value => await this.JS.InvokeAsync<string>("md5", value);
 		this.Regenerate();
+		this.BackgroundTimer();
+		this.BackgroundTask();
 		base.OnInitialized();
 	}
 	public async void Regenerate()
 	{
 		this.LoginUrl = "Generating...";
-		this.QRCodeBlob = "";
 		this.ExpiresAt = default;
 		this.ExpiresInSeconds = 0;
 		this.LoginTarget = null;
@@ -47,20 +53,9 @@ public partial class PhigrosTokenGetter
 			this.LoginTarget = await TapTapHelper.RequestLoginQrCode(useChinaEndpoint: this.UseChinaEndpoint);
 			this.LoginUrl = this.LoginTarget.Url;
 			this.ExpiresAt = DateTime.Now + new TimeSpan(0, 0, this.LoginTarget.ExpiresInSeconds);
-
-			using MemoryStream ms = new();
-			QRCodeGenerator qrCodeGenerate = new();
-			QRCodeData qrCodeData = qrCodeGenerate.CreateQrCode(this.LoginUrl, QRCodeGenerator.ECCLevel.Q);
-			QRCode qrCode = new(qrCodeData);
-			using Bitmap qrBitMap = qrCode.GetGraphic(20);
-			qrBitMap.Save(ms, ImageFormat.Png);
-			string base64 = Convert.ToBase64String(ms.ToArray());
-			this.QRCodeBlob = string.Format("data:image/png;base64,{0}", base64);
-			this.QRCodeAlt = "Generated!";
 		}
 		catch (Exception ex)
 		{
-			this.QRCodeBlob = "";
 			this.ExpiresAt = default;
 			this.LoginUrl = $"Failed to request login url, error: {ex.Message}";
 			this.ExpiresInSeconds = 0;
@@ -81,7 +76,7 @@ public partial class PhigrosTokenGetter
 
 			this.ExpiresInSeconds = (int)(this.ExpiresAt - DateTime.Now).TotalSeconds;
 			this.StateHasChanged();
-			if (this.ExpiresInSeconds < 0)
+			if (this.ExpiresInSeconds == 0)
 				this.Regenerate();
 		}
 	}
@@ -104,7 +99,6 @@ public partial class PhigrosTokenGetter
 
 			this.LoginTarget = null;
 			this.LoginUrl = "";
-			this.QRCodeBlob = "";
 			this.ExpiresAt = default;
 			this.ExpiresInSeconds = 0;
 			this.QRCodeAlt = "Login complete.";

@@ -2,6 +2,27 @@
     background-image: url(/Assets/Generic/Background/IndexBackground.png);
 }
 #LoginMain {
-    width: 384px;
-    height: 800px;
+    width: 320px;
+    height: 640px;
+    background: rgba(0, 0, 0, 0.3);
+    position: relative;
+    display: block;
+    margin: auto auto;
+}
+#QRCodeImage {
+    margin: 19px;
+}
+#Regenerate {
+    align-self: center;
+    justify-self: center;
+}
+main {
+    align-items: center;
+    justify-items: center;
+    align-content: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    display: flex;
+    width: 100%;
+    height: 100%;
 }
