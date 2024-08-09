@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "yt6983138.github.io",
   "resources": {
-    "hash": "sha256-a+NlCFrHKr4JcT7P4nSTjxOxrKvBueMRRHEYozdSq20=",
+    "hash": "sha256-3BscucAUU4EXf30x7sDITsLbUbkLOlXT4blq7cUcQYA=",
     "jsModuleNative": {
       "dotnet.native.8.0.7.eqphueqkwy.js": "sha256-R0k6gMWD2bAmwAmXJ8Nqsp9vfA0JLxKn2U4B0ULvCkI="
     },
@@ -9,7 +9,7 @@
       "dotnet.runtime.8.0.7.urcsr75yt5.js": "sha256-soZyw6XWXOLKhA26AOyzSpCP5cAsw1wvhdPHSYNTMfQ="
     },
     "wasmNative": {
-      "dotnet.native.wasm": "sha256-xPs6kZQL+5cP+m8Kt8P8mJNaFutOw+Cg9Zj2QNTGw/k="
+      "dotnet.native.wasm": "sha256-HIrYhlGEflGZ97rxFs5jpZyp3ibmKxNc4GDb7Aqng1U="
     },
     "icu": {
       "icudt_CJK.dat": "sha256-SZLtQnRc0JkwqHab0VUVP7T3uBPSeYzxzDnpxPpUnHk=",
