@@ -16,6 +16,14 @@
     align-self: center;
     justify-self: center;
 }
+#Token {
+    border-color: var(--BorderColor);
+    color: white;
+    background-color: var(--GenericBackgroundColor);
+    border-radius: 3px;
+    resize: none;
+    font-size: 14px;
+}
 main {
     align-items: center;
     justify-items: center;

@@ -4,6 +4,8 @@ using Microsoft.JSInterop;
 using Newtonsoft.Json;
 using PhigrosLibraryCSharp;
 using PhigrosLibraryCSharp.Cloud.DataStructure;
+using PhigrosLibraryCSharp.GameRecords;
+using PhigrosLibraryCSharp.GameRecords.Raw;
 using System.Text;
 using System.Xml;
 using yt6983138.Common;
@@ -33,7 +35,7 @@ public partial class RksReaderEnhanced : ComponentBase
 	private GoogleChartHelper? ChartHelper;
 	private DownloadHelper? downloadHelper;
 	private readonly static Logger PageLogger = new();
-	private static SaveHelper? SaveHelper { get; set; }
+	private static Save? SaveHelper { get; set; }
 	#endregion
 
 	#region Settings
@@ -53,7 +55,7 @@ public partial class RksReaderEnhanced : ComponentBase
 	public string SaveFileContent { get; private set; } = "";
 	public Dictionary<string, string> RawParsedXml { get; private set; } = new();
 	public Dictionary<string, string> DecryptedXml { get; private set; } = new();
-	public List<InternalScoreFormat> AllScores { get; private set; } = new();
+	public List<CompleteScore> AllScores { get; private set; } = new();
 	public Dictionary<string, float[]> Difficulties { get; private set; } = new();
 	public Dictionary<string, string> Names { get; private set; } = new();
 	public Dictionary<string, (int ap, int fc, int vu, int s, int a, int b, int c, int f, int cleared)> Infos { get; set; } = new();
@@ -68,7 +70,7 @@ public partial class RksReaderEnhanced : ComponentBase
 	{
 		this.ChartHelper = new(this.JS);
 		this.downloadHelper = new(this.JS);
-		PageLogger.OnLog += async (_, _2) => await this.InvokeAsync(this.StateHasChanged);
+		PageLogger.OnAfterLog += async (_, _2) => await this.InvokeAsync(this.StateHasChanged);
 		base.OnInitialized();
 	}
 	#endregion
@@ -103,7 +105,7 @@ public partial class RksReaderEnhanced : ComponentBase
 		{
 			this.ChartHelper!.AddRow(
 				(this.Names.TryGetValue(this.AllScores[i].Name, out string? value) ? value : this.AllScores[i].Name) + " " + this.AllScores[i].DifficultyName,
-				this.AllScores[i].GetRksCalculated()
+				this.AllScores[i].Rks
 			);
 		}
 		var options = new
@@ -121,8 +123,8 @@ public partial class RksReaderEnhanced : ComponentBase
 			},
 			vAxis = new
 			{
-				maxValue = this.AllScores[1].GetRksCalculated(),
-				minValue = this.AllScores[19].GetRksCalculated(),
+				maxValue = this.AllScores[1].Rks,
+				minValue = this.AllScores[19].Rks,
 				textStyle = new { color = "white" },
 				gridlineColor = "#404040"
 			},
@@ -151,7 +153,7 @@ public partial class RksReaderEnhanced : ComponentBase
 	private async void ExportJSON()
 	{
 		int count = (this.CountToExport < 1) ? this.AllScores.Count : Math.Min(this.CountToExport, this.AllScores.Count);
-		List<ExportScoreFormat> sliced = new();
+		List<ExportScore> sliced = new();
 		for (int i = 0; i < count; i++)
 		{
 			sliced.Add(this.AllScores[i].Export(this.Names.TryGetValue(this.AllScores[i].Name, out string? value) ? value : "Unknown"));
@@ -173,8 +175,8 @@ public partial class RksReaderEnhanced : ComponentBase
 				this.AllScores[i].DifficultyName,
 				this.AllScores[i].ChartConstant.ToString(),
 				this.AllScores[i].Score.ToString(),
-				this.AllScores[i].Acc.ToString(),
-				this.AllScores[i].GetRksCalculated().ToString(),
+				this.AllScores[i].Accuracy.ToString(),
+				this.AllScores[i].Rks.ToString(),
 				this.AllScores[i].Status.ToString()
 			);
 		}
@@ -190,9 +192,9 @@ public partial class RksReaderEnhanced : ComponentBase
 			try
 			{
 				string keyDecoded = System.Net.WebUtility.UrlDecode(pair.Key);
-				string keyDecrypted = SaveHelper.DecryptSaveStringNew(keyDecoded);
+				string keyDecrypted = Save.DecryptLocalSaveStringNew(keyDecoded);
 				string valueDecoded = System.Net.WebUtility.UrlDecode(pair.Value);
-				string valueDecrypted = SaveHelper.DecryptSaveStringNew(valueDecoded);
+				string valueDecrypted = Save.DecryptLocalSaveStringNew(valueDecoded);
 				builder.AddRow(keyDecoded, keyDecrypted, valueDecoded, valueDecrypted);
 				i++;
 			}
@@ -210,7 +212,7 @@ public partial class RksReaderEnhanced : ComponentBase
 			double _rks = 0;
 			for (int i = 0; i < Math.Min(20, this.AllScores.Count); i++)
 			{
-				_rks += this.AllScores[i].GetRksCalculated() * 0.05;
+				_rks += this.AllScores[i].Rks * 0.05;
 			}
 			return _rks;
 		}
@@ -237,9 +239,9 @@ public partial class RksReaderEnhanced : ComponentBase
 			{ "IN", new() },
 			{ "AT", new() }
 		};
-		(int index, InternalScoreFormat score) highest = (0, new()
+		(int index, CompleteScore score) highest = (0, new()
 		{
-			Acc = 0,
+			Accuracy = 0,
 			Score = 0,
 			ChartConstant = 0,
 			DifficultyName = "EZ",
@@ -248,10 +250,10 @@ public partial class RksReaderEnhanced : ComponentBase
 		});
 		PageLogger.Log(LogLevel.Information, "Sorting Save...");
 		int i = 0;
-		this.AllScores.Sort((x, y) => y.GetRksCalculated().CompareTo(x.GetRksCalculated()));
-		foreach (InternalScoreFormat score in this.AllScores)
+		this.AllScores.Sort((x, y) => y.Rks.CompareTo(x.Rks));
+		foreach (CompleteScore score in this.AllScores)
 		{
-			if (score.GetRksCalculated() > highest.score.GetRksCalculated() && score.Acc == 100)
+			if (score.Rks > highest.score.Rks && score.Accuracy == 100)
 			{
 				highest.index = i;
 				highest.score = score;
@@ -319,7 +321,7 @@ public partial class RksReaderEnhanced : ComponentBase
 	public void ChangeScores()
 	{
 		if (this.IsLoading || !this.Loaded || !int.TryParse(this._currentSelected, out int value)) return;
-		this.AllScores = new List<InternalScoreFormat>(this.CloudSaves[value].Save.Records);
+		this.AllScores = new List<CompleteScore>(this.CloudSaves[value].Save.Records);
 		this.CurrentSummary = this.CloudSaves[value].Summary;
 		this.RenderAll(); // ^ to prevent modification to record list
 	}
@@ -329,13 +331,12 @@ public partial class RksReaderEnhanced : ComponentBase
 		this.IsLoading = true;
 		try
 		{
-			SaveHelper = new()
+			SaveHelper = new(this.SessionToken)
 			{
 				Decrypter = async (key, iv, data)
 					=> await this.JS.InvokeAsync<byte[]>("AesDecrypt", data, key, iv)
 
 			};
-			SaveHelper.InitializeCloudHelper(this.SessionToken);
 		}
 		catch
 		{
@@ -440,8 +441,8 @@ public partial class RksReaderEnhanced : ComponentBase
 			try
 			{
 				this.DecryptedXml.Add(
-					SaveHelper.DecryptSaveStringNew(System.Net.WebUtility.UrlDecode(pair.Key)),
-					SaveHelper.DecryptSaveStringNew(System.Net.WebUtility.UrlDecode(pair.Value))
+					Save.DecryptLocalSaveStringNew(System.Net.WebUtility.UrlDecode(pair.Key)),
+					Save.DecryptLocalSaveStringNew(System.Net.WebUtility.UrlDecode(pair.Value))
 				);
 			}
 			catch (Exception ex)
@@ -499,9 +500,9 @@ public partial class RksReaderEnhanced : ComponentBase
 				string[] splitted = pair.Key.Split(".");
 				string id = $"{splitted[0]}.{splitted[1]}";
 				this.AllScores.Add(
-					JsonConvert.DeserializeObject<ScoreFormat>(this.DecryptedXml[pair.Key])
-						.ToInternalFormat(
-							this.Difficulties[id][Helper.DifficultStringToIndex(splitted[^1])],
+					JsonConvert.DeserializeObject<RawScore>(this.DecryptedXml[pair.Key])
+						.ToCompleteScore(
+							this.Difficulties[id][ScoreHelper.DifficultStringToIndex(splitted[^1])],
 							id,
 							splitted[^1]
 						)

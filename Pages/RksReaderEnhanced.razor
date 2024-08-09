@@ -223,8 +223,8 @@
 				<td class="TableData TableSecond">@(Names.TryGetValue(score.Name, out string? str) ? str : score.Name)</td>
 				<td class="TableData TableThird">@string.Format(ChartConstantFormat, @score.DifficultyName, @score.ChartConstant)</td>
 				<td class="TableData TableForth">@string.Format(ScoreStringFormat, @score.Score)</td>
-				<td class="TableData TableFifth">@string.Format(AccFormat, @score.Acc)</td>
-				<td class="TableData TableSixth">@string.Format(RksFormat, @score.GetRksCalculated())</td>
+				<td class="TableData TableFifth">@string.Format(AccFormat, @score.Accuracy)</td>
+				<td class="TableData TableSixth">@string.Format(RksFormat, @score.Rks)</td>
 				<td class="TableData TableSeventh"><img src="@IconUrl[score.Status]" width="64" /></td>
 			</tr>
 			index++;

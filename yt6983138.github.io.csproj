@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PhigrosLibraryCSharp\PhigrosLibraryCSharp.csproj" />
+    <ProjectReference Include="..\PhigrosLibraryCSharp\PhigrosLibraryCSharp\PhigrosLibraryCSharp.csproj" />
     <ProjectReference Include="..\yt6983138\yt6983138.csproj" />
   </ItemGroup>
 

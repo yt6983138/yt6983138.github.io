@@ -2,6 +2,7 @@
 using Microsoft.JSInterop;
 using PhigrosLibraryCSharp.Cloud.Login;
 using PhigrosLibraryCSharp.Cloud.Login.DataStructure;
+using System.Net;
 
 namespace yt6983138.github.io.Pages;
 
@@ -11,27 +12,24 @@ public partial class PhigrosTokenGetter
 	[Inject]
 	private IJSRuntime JS { get; set; }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-	private bool _useChinaEndpoint = false;
 
 	public string QRCodeAlt { get; set; } = "";
 	public string LoginUrl { get; private set; } = "";
 	public CompleteQRCodeData? LoginTarget { get; set; }
 	public DateTime ExpiresAt { get; set; }
 	public int ExpiresInSeconds { get; set; } = 0;
-	public bool UseChinaEndpoint
-	{
-		get => this._useChinaEndpoint;
-		set
-		{
-			this._useChinaEndpoint = value;
-			this.Regenerate();
-		}
-	}
 	public string Token { get; set; } = "";
 	public bool Generating { get; private set; }
 	protected override void OnInitialized()
 	{
 		LCHelper.GetMD5HashHexString = async value => await this.JS.InvokeAsync<string>("md5", value);
+		TapTapHelper.Proxy = async (client, request) =>
+		{
+			request.RequestUri = new(
+				$"https://corsproxy.io/?{request.RequestUri}");
+			Console.WriteLine(request.Method);
+			return await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+		};
 		this.Regenerate();
 		this.BackgroundTimer();
 		this.BackgroundTask();
@@ -50,7 +48,7 @@ public partial class PhigrosTokenGetter
 		this.StateHasChanged();
 		try
 		{
-			this.LoginTarget = await TapTapHelper.RequestLoginQrCode(useChinaEndpoint: this.UseChinaEndpoint);
+			this.LoginTarget = await TapTapHelper.RequestLoginQrCode();
 			this.LoginUrl = this.LoginTarget.Url;
 			this.ExpiresAt = DateTime.Now + new TimeSpan(0, 0, this.LoginTarget.ExpiresInSeconds);
 		}
@@ -88,11 +86,11 @@ public partial class PhigrosTokenGetter
 			if (this.Generating || this.LoginTarget is null)
 				continue; // generating
 
-			TapTapTokenData? result = await TapTapHelper.CheckQRCodeResult(this.LoginTarget, this.UseChinaEndpoint);
+			TapTapTokenData? result = await TapTapHelper.CheckQRCodeResult(this.LoginTarget);
 			if (result is null)
 				continue;
 
-			TapTapProfileData profile = await TapTapHelper.GetProfile(result.Data, this.UseChinaEndpoint);
+			TapTapProfileData profile = await TapTapHelper.GetProfile(result.Data);
 			LCCombinedAuthData combined = new(profile.Data, result.Data);
 
 			this.Token = await LCHelper.LoginAndGetToken(combined);

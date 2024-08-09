@@ -7,7 +7,10 @@
 	<div id="LoginInfo">
 		<span>Login url:</span>
 		<a href="@LoginUrl" target="_blank" style="pointer-events: @(LoginUrl.Contains("taptap") ? "auto" : "none")">@LoginUrl<br/></a>
-		<span>Expires at: @ExpiresAt.ToString(), in @ExpiresInSeconds seconds.</span>
+		@if (ExpiresAt != default) 
+		{
+			<span>Expires at: @ExpiresAt.ToString(), in @ExpiresInSeconds seconds.</span>
+		}
 	</div>
 	<div id="TokenInfo">
 		<p>
@@ -16,6 +19,4 @@
 		<textarea id="Token" readonly>@Token</textarea>
 	</div>
 	<button id="Regenerate" @onclick=Regenerate>Regenerate</button>
-	<input type="checkbox" id="IsChina" @bind=UseChinaEndpoint />
-	<label id="IsChinaLabel" for="IsChina">Use China endpoint</label>
 </div>
