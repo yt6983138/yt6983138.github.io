@@ -8,6 +8,7 @@
     position: relative;
     display: block;
     margin: auto auto;
+    padding: 16px;
 }
 #QRCodeImage {
     margin: 19px;
@@ -15,6 +16,18 @@
 #Regenerate {
     align-self: center;
     justify-self: center;
+    display: flex;
+    margin: auto auto;
+}
+#RegenerateBox {
+    width: 100%;
+}
+#BottomControl {
+    width: calc(100% - 32px);
+    justify-items: center;
+    align-items: center;
+    bottom: 16px;
+    position: absolute;
 }
 #Token {
     border-color: var(--BorderColor);
@@ -23,6 +36,10 @@
     border-radius: 3px;
     resize: none;
     font-size: 14px;
+    width: 100%;
+}
+#TokenInfo {
+    width: 100%;
 }
 main {
     align-items: center;

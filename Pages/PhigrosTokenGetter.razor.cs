@@ -1,17 +1,44 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using PhigrosLibraryCSharp.Cloud.Login;
+using Newtonsoft.Json;
 using PhigrosLibraryCSharp.Cloud.Login.DataStructure;
-using System.Net;
+using System.Net.Http.Json;
+using yt6983138.Common;
 
 namespace yt6983138.github.io.Pages;
 
 public partial class PhigrosTokenGetter
 {
+	#region Endpoints
+	public const string GetQrcodeEndpoint = "/api/LoginQrCode/GetNewQrCode";
+	public const string CheckQrcodeResultEndpoint = "/api/LoginQrCode/CheckQRCode";
+	public const string GetPhigrosTokenEndpoint = "/api/LoginQrCode/GetPhigrosToken";
+	#endregion
+
+	#region Settings/clients for backend server
+	private string _httpServiceProviderHost = "https://yt6983138.ddns.net";
+
+	public string HttpServiceProviderHost
+	{
+		get => this._httpServiceProviderHost;
+		set
+		{
+			value = value.TrimEnd('/');
+			this._httpServiceProviderHost = value;
+
+			this._httpClient.BaseAddress = new(value);
+		}
+	}
+
+	private HttpClient _httpClient = new();
+	#endregion
+
+	#region Injection
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 	[Inject]
 	private IJSRuntime JS { get; set; }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+	#endregion
 
 	public string QRCodeAlt { get; set; } = "";
 	public string LoginUrl { get; private set; } = "";
@@ -22,18 +49,12 @@ public partial class PhigrosTokenGetter
 	public bool Generating { get; private set; }
 	protected override void OnInitialized()
 	{
-		LCHelper.GetMD5HashHexString = async value => await this.JS.InvokeAsync<string>("md5", value);
-		TapTapHelper.Proxy = async (client, request) =>
-		{
-			request.RequestUri = new(
-				$"https://corsproxy.io/?{request.RequestUri}");
-			Console.WriteLine(request.Method);
-			return await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
-		};
+		base.OnInitialized();
+
+		Task.Delay(50);
 		this.Regenerate();
 		this.BackgroundTimer();
 		this.BackgroundTask();
-		base.OnInitialized();
 	}
 	public async void Regenerate()
 	{
@@ -43,14 +64,15 @@ public partial class PhigrosTokenGetter
 		this.LoginTarget = null;
 		this.Token = "";
 		this.QRCodeAlt = "Generating...";
-		this.Token = "Waiting for login...";
+		this.Token = "Generating...";
 		this.Generating = true;
 		this.StateHasChanged();
 		try
 		{
-			this.LoginTarget = await TapTapHelper.RequestLoginQrCode();
+			this.LoginTarget = await this.NewQrcode();
 			this.LoginUrl = this.LoginTarget.Url;
 			this.ExpiresAt = DateTime.Now + new TimeSpan(0, 0, this.LoginTarget.ExpiresInSeconds);
+			this.Token = "Waiting for login...";
 		}
 		catch (Exception ex)
 		{
@@ -59,6 +81,7 @@ public partial class PhigrosTokenGetter
 			this.ExpiresInSeconds = 0;
 			this.LoginTarget = null;
 			this.QRCodeAlt = "Failed to generate!";
+			this.Token = "Failed to generate!";
 			Console.WriteLine(ex.ToString());
 		}
 		this.Generating = false;
@@ -86,14 +109,11 @@ public partial class PhigrosTokenGetter
 			if (this.Generating || this.LoginTarget is null)
 				continue; // generating
 
-			TapTapTokenData? result = await TapTapHelper.CheckQRCodeResult(this.LoginTarget);
+			TapTapTokenData? result = await this.CheckQrcodeResult(this.LoginTarget);
 			if (result is null)
 				continue;
 
-			TapTapProfileData profile = await TapTapHelper.GetProfile(result.Data);
-			LCCombinedAuthData combined = new(profile.Data, result.Data);
-
-			this.Token = await LCHelper.LoginAndGetToken(combined);
+			this.Token = await this.GetPhigrosToken(result);
 
 			this.LoginTarget = null;
 			this.LoginUrl = "";
@@ -103,4 +123,36 @@ public partial class PhigrosTokenGetter
 			this.StateHasChanged();
 		}
 	}
+	#region Api methods
+	private string GetApiUrl(string endpointUrl)
+		=> $"{this.HttpServiceProviderHost}{endpointUrl}";
+	public async Task<CompleteQRCodeData> NewQrcode()
+	{
+		HttpResponseMessage result = await this._httpClient.GetAsync(this.GetApiUrl(GetQrcodeEndpoint));
+		return JsonConvert.DeserializeObject<CompleteQRCodeData>(await result.Content.ReadAsStringAsync())
+			.EnsureNotNull();
+	}
+	public async Task<TapTapTokenData?> CheckQrcodeResult(CompleteQRCodeData data)
+	{
+		HttpResponseMessage result = await this._httpClient.PostAsync(
+			this.GetApiUrl(CheckQrcodeResultEndpoint),
+			JsonContent.Create(data));
+		if (!result.IsSuccessStatusCode)
+			return null;
+		string content = await result.Content.ReadAsStringAsync();
+		TapTapTokenData? ret = JsonConvert.DeserializeObject<TapTapTokenData>(content);
+		if (ret is null || ret.Data is null)
+			return null;
+		return ret;
+	}
+	public async Task<string> GetPhigrosToken(TapTapTokenData data)
+	{
+		HttpResponseMessage result = await this._httpClient.PostAsync(
+			this.GetApiUrl(GetPhigrosTokenEndpoint),
+			JsonContent.Create(data));
+		string ret = await result.Content.ReadAsStringAsync();
+		result.EnsureSuccessStatusCode();
+		return ret;
+	}
+	#endregion
 }
