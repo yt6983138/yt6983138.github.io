@@ -104,7 +104,7 @@ public partial class RksReaderEnhanced : ComponentBase
 		for (int i = 0; i < count; i++)
 		{
 			this.ChartHelper!.AddRow(
-				(this.Names.TryGetValue(this.AllScores[i].Name, out string? value) ? value : this.AllScores[i].Name) + " " + this.AllScores[i].DifficultyName,
+				(this.Names.TryGetValue(this.AllScores[i].Id, out string? value) ? value : this.AllScores[i].Id) + " " + this.AllScores[i].Difficulty.ToString(),
 				this.AllScores[i].Rks
 			);
 		}
@@ -156,7 +156,7 @@ public partial class RksReaderEnhanced : ComponentBase
 		List<ExportScore> sliced = new();
 		for (int i = 0; i < count; i++)
 		{
-			sliced.Add(this.AllScores[i].Export(this.Names.TryGetValue(this.AllScores[i].Name, out string? value) ? value : "Unknown"));
+			sliced.Add(this.AllScores[i].Export(this.Names.TryGetValue(this.AllScores[i].Id, out string? value) ? value : "Unknown"));
 		}
 		string content = JsonConvert.SerializeObject(sliced, Newtonsoft.Json.Formatting.Indented);
 		await this.downloadHelper!.DownloadFromByte(Encoding.UTF8.GetBytes(content), "Export.json", "application/json");
@@ -168,11 +168,11 @@ public partial class RksReaderEnhanced : ComponentBase
 		int count = (this.CountToExport < 1) ? this.AllScores.Count : Math.Min(this.CountToExport, this.AllScores.Count);
 		for (int i = 0; i < count; i++)
 		{
-			string realName = this.Names.TryGetValue(this.AllScores[i].Name, out string? value) ? value : "Unknown";
+			string realName = this.Names.TryGetValue(this.AllScores[i].Id, out string? value) ? value : "Unknown";
 			builder.AddRow(
-				this.AllScores[i].Name,
+				this.AllScores[i].Id,
 				realName,
-				this.AllScores[i].DifficultyName,
+				this.AllScores[i].Difficulty.ToString(),
 				this.AllScores[i].ChartConstant.ToString(),
 				this.AllScores[i].Score.ToString(),
 				this.AllScores[i].Accuracy.ToString(),
@@ -239,15 +239,7 @@ public partial class RksReaderEnhanced : ComponentBase
 			{ "IN", new() },
 			{ "AT", new() }
 		};
-		(int index, CompleteScore score) highest = (0, new()
-		{
-			Accuracy = 0,
-			Score = 0,
-			ChartConstant = 0,
-			DifficultyName = "EZ",
-			Name = "None",
-			Status = ScoreStatus.Bugged
-		});
+		(int index, CompleteScore score) highest = (0, new(0, 0, 0, "None", Difficulty.EZ, ScoreStatus.Bugged));
 		PageLogger.Log(LogLevel.Information, "Sorting Save...");
 		int i = 0;
 		this.AllScores.Sort((x, y) => y.Rks.CompareTo(x.Rks));
@@ -261,7 +253,7 @@ public partial class RksReaderEnhanced : ComponentBase
 			i++;
 			try
 			{
-				(int ap, int fc, int vu, int s, int a, int b, int c, int f, int cleared) _info = this.Infos[score.DifficultyName.ToUpper()];
+				(int ap, int fc, int vu, int s, int a, int b, int c, int f, int cleared) _info = this.Infos[score.Difficulty.ToString().ToUpper()];
 				switch (score.Status)
 				{
 					case ScoreStatus.Phi:
@@ -292,7 +284,7 @@ public partial class RksReaderEnhanced : ComponentBase
 						_info.cleared++;
 						break;
 				}
-				this.Infos[score.DifficultyName.ToUpper()] = _info;
+				this.Infos[score.Difficulty.ToString().ToUpper()] = _info;
 			}
 			catch { }
 		}
@@ -349,7 +341,11 @@ public partial class RksReaderEnhanced : ComponentBase
 			PageLogger.Log(LogLevel.Information, "Loading CSVs...");
 			await this.LoadCSVs();
 			PageLogger.Log(LogLevel.Information, "Loading Save From Remote...");
-			this.CloudSaves = await SaveHelper.GetGameSavesAsync(this.Difficulties, this.MaxCloudSaveEntries < 1 ? int.MaxValue : this.MaxCloudSaveEntries);
+			for (int i = 0; i < this.MaxCloudSaveEntries; i++)
+			{
+				(Summary? summary, GameSave? save) = await SaveHelper.GetGameSaveAsync(this.Difficulties, i);
+				this.CloudSaves.Add((summary, save));
+			}
 			this.CurrentUserInfo = await SaveHelper.GetUserInfoAsync();
 			// Console.WriteLine(CloudSaves.Count);
 		}
@@ -420,14 +416,8 @@ public partial class RksReaderEnhanced : ComponentBase
 			CreationTime = DateTime.UnixEpoch,
 			NickName = "*Unknown*"
 		};
-		this.CurrentSummary = new()
-		{
-			Avatar = string.Empty,
-			ChallengeCode = this.DecryptedXml.TryGetValue("ChallengeModeRank", out string? str3) ? ushort.Parse(str3) : (ushort)0,
-			GameVersion = -1,
-			SaveVersion = -1,
-			Clears = new()
-		};
+		this.CurrentSummary = new(-1, -1, new(
+			this.DecryptedXml.TryGetValue("ChallengeModeRank", out string? str3) ? ushort.Parse(str3) : default), "", new());
 		this.RenderAll();
 		this.IsLoading = false;
 		this.Loaded = true;
@@ -504,7 +494,7 @@ public partial class RksReaderEnhanced : ComponentBase
 						.ToCompleteScore(
 							this.Difficulties[id][ScoreHelper.DifficultStringToIndex(splitted[^1])],
 							id,
-							splitted[^1]
+							Enum.Parse<Difficulty>(splitted[^1])
 						)
 				);
 			}

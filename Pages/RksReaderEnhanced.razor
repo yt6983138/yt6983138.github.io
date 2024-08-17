@@ -191,13 +191,9 @@
 			<td class="TableData TableThird">@(CurrentUserInfo.UserName)</td>
 			<td class="TableData TableForth">@(CurrentUserInfo.ModificationTime.ToString())</td>
 			<td class="TableData TableFifth" id="ChallengeCodeTD">
-				@{
-					string challenge = CurrentSummary.ChallengeCode.ToString();
-					string trimmed = challenge[^Math.Min(2, challenge.Length)..].TrimStart('0');
-				}
 				<div style="width: 100%; height:100%; position:relative">
-					<img src="@($"/Assets/RksReader/Challenge/{(challenge.Length > 2 ? challenge[0] : "0")}.png")" id="ChallengeImg" width="128" />
-					<span id="ChallengeText">@(trimmed.Length == 0 ? '0' : trimmed)</span>
+					<img src="@($"/Assets/RksReader/Challenge/{(int)CurrentSummary.Challenge.Rank}.png")" id="ChallengeImg" width="128" />
+					<span id="ChallengeText">@(CurrentSummary.Challenge.Level)</span>
 				</div>
 			</td>
 		</tr>
@@ -220,8 +216,8 @@
 			// if (score.Name == null) continue;
 			<tr>
 				<td class="TableData TableFirst">@("#" + ((index == 0) ? "φ" : index))</td>
-				<td class="TableData TableSecond">@(Names.TryGetValue(score.Name, out string? str) ? str : score.Name)</td>
-				<td class="TableData TableThird">@string.Format(ChartConstantFormat, @score.DifficultyName, @score.ChartConstant)</td>
+				<td class="TableData TableSecond">@(Names.TryGetValue(score.Id, out string? str) ? str : score.Id)</td>
+				<td class="TableData TableThird">@string.Format(ChartConstantFormat, @score.Difficulty, @score.ChartConstant)</td>
 				<td class="TableData TableForth">@string.Format(ScoreStringFormat, @score.Score)</td>
 				<td class="TableData TableFifth">@string.Format(AccFormat, @score.Accuracy)</td>
 				<td class="TableData TableSixth">@string.Format(RksFormat, @score.Rks)</td>
