@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<!-- wrote by 7aGiven, credit to them not me -->
+
+<html>
+  <head>
+	<base href="https://yt6983138.github.io/RustPhiLogin/" >
+
+    <meta
+      charset="UTF8"
+      name="viewport"
+      content="width=device-width,user-scalable=0"
+    />
+    <title>Phigros Token Getter</title>
+    <style>
+      .center {
+        display: flex;
+        justify-content: center;
+      }
+      .transparent {
+        background-color: transparent;
+        color: white;
+      }
+    </style>
+    <script src="qrcode.min.js"></script>
+  </head>
+  <body
+    class="center"
+    style="height: 95vh; align-items: center; color: white"
+    background="https://yt6983138.github.io/Assets/Generic/Background/IndexBackground.png"
+  >
+    <div style="width: 320px; padding: 16px; backdrop-filter: blur(6px)">
+      <div
+        id="QR"
+        class="center"
+        style="background-color: white; padding: 44px"
+      ></div>
+      <div>Login url:<a id="qrcode_url"></a></div>
+      <div>Expires at:<span id="expires"></span></div>
+      <div style="margin-top: 100px">
+        <span>Your token:</span>
+        <div style="margin-top: 20px">
+          <textarea id="token" class="transparent" style="width: 100%">
+Waiting for login...</textarea
+          >
+        </div>
+        <div class="center">
+          <button
+            class="transparent"
+            onclick="regenerate"
+            style="border: 1px solid; font-size: 22px"
+          >
+            Regenerate
+          </button>
+        </div>
+      </div>
+    </div>
+    <script>
+      const url = "https://yt6983138.ddns.net";
+      let device_code = "";
+      let expires = 0;
+      setInterval(async () => {
+        const d = expires - Math.round(Date.now() / 1000);
+        if (d < 0) {
+          return;
+        }
+        document.getElementById("expires").innerHTML = d + "s";
+        if (d % 3 === 0) {
+          const response = await fetch(url + "/token/" + device_code, {
+            method: "POST",
+            mode: "cors",
+            body: "Browser",
+          });
+          const json = await response.json();
+          console.log(json);
+          if ("error" in json) {
+            return;
+          }
+          document.getElementById("token").innerHTML = json.sessionToken;
+          expires = 0;
+        }
+      }, 1000);
+      async function regenerate() {
+        const response = await fetch(url + "/login", {
+          method: "POST",
+          mode: "cors",
+          body: "Browser",
+        });
+        const json = await response.json();
+        console.log(json);
+        const qrcode_url = document.getElementById("qrcode_url");
+        qrcode_url.href = json.qrcode_url;
+        qrcode_url.innerHTML = json.qrcode_url;
+        new QRCode("QR", {
+          text: json.qrcode_url,
+          correctLevel: QRCode.CorrectLevel.L,
+        });
+        expires = Math.round(Date.now() / 1000) + json.expires_in;
+        device_code = json.device_code;
+      }
+      regenerate();
+    </script>
+  </body>
+</html>
