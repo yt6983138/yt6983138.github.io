@@ -1,68 +1,243 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="UTF8" name="viewport" content="width=device-width,user-scalable=0">
-	<title>Phigros Token Getter</title>
-	<style>
-		.center {
-			display: flex;
-			justify-content: center;
-		}
-		.transparent {
-			background-color: transparent;
-			color: white;
-		}
-	</style>
-	<script src="qrcode.min.js"></script>
+    <meta charset="UTF-8" name="viewport" content="width=device-width, user-scalable=0">
+    <title>Phigros Token Getter</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: url('R-C.jpeg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+        }
+        .container {
+            width: 320px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+        .qr-container {
+            position: relative;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .qr-blur {
+            filter: blur(4px);
+        }
+        a {
+            color: #1E90FF;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .transparent {
+            background-color: transparent;
+            color: white;
+            border: none;
+            font-family: 'Roboto', sans-serif;
+            resize: none;
+            overflow: hidden;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        button {
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        .copy-token {
+            background-color: #1E90FF;
+        }
+        .copy-token:hover {
+            background-color: #1C86EE;
+        }
+        .regenerate {
+            background-color: #FF6347;
+        }
+        .regenerate:hover {
+            background-color: #FF4500;
+        }
+        button:disabled {
+            background-color: #B0C4DE;
+            cursor: not-allowed;
+        }
+        textarea {
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        #expires {
+            color: white;
+            font-size: 18px;
+            position: relative;
+        }
+        #expires.line-through::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 2px;
+            background-color: red;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+        #expires.red {
+            color: red;
+        }
+    </style>
+    <script src="qrcode.min.js"></script>
 </head>
-<body class="center" style="height: 94vh; align-items: center; color:white" background="https://yt6983138.github.io/Assets/Generic/Background/IndexBackground.png">
-	<div style="width: 320px; padding: 16px; backdrop-filter:blur(6px)">
-		<div id="QR" class="center" style="background-color: white; padding: 44px"></div>
-		<div>Login url:<a id="qrcode_url"></a></div>
-		<div>Expires at:<span id="expires"></span></div>
-		<div style="margin-top: 30px">
-			<span>Your token:</span>
-			<div style="margin-top: 15px"><textarea id="token" class="transparent" style="width:100%;">Waiting for login...</textarea></div>
-			<div class="center"><button class="transparent" onclick="regenerate()" style="border: 1px solid; font-size: 22px">Regenerate</button></div>
-		</div>
-	</div>
-<script>
-const url = "https://yt6983138.ddns.net"
-let device_code = "";
-let expires = 0;
-let qrcode = 0;
-setInterval(async()=>{
-	const d = expires - Math.round(Date.now()/1000)
-	if (d < 0) {
-		document.getElementById("expires").innerHTML = "0s";
-		return
-	}
-	document.getElementById("expires").innerHTML = d + "s";
-	if (d % 3 === 0) {
-		const response = await fetch(url+"/token/"+device_code,{method:"POST",mode:"cors",body:"Browser"});
-		const json = await response.json();
-		console.log(json);
-		if ("error" in json) {return}
-		document.getElementById("token").innerHTML = json.sessionToken;
-		expires = 0;
-	}
-},1000);
-async function regenerate() {
-	const response = await fetch(url+"/login",{method:"POST",mode:"cors",body:"Browser"})
-	const json = await response.json();
-	console.log(json);
-	const qrcode_url = document.getElementById("qrcode_url");
-	qrcode_url.href = json.qrcode_url;
-	qrcode_url.innerHTML = json.qrcode_url;
-	if (qrcode === 0) {
-		qrcode = new QRCode("QR",{text:json.qrcode_url,correctLevel: QRCode.CorrectLevel.L});
-	} else {
-		qrcode.makeCode(json.qrcode_url);
-	}
-	expires = Math.round(Date.now()/1000)+json.expires_in;
-	device_code = json.device_code;
-}
-regenerate();
-</script>
+<body>
+    <div class="container">
+        <div id="QR" class="qr-container">
+            <!-- Removed the qr-overlay div as it's no longer needed -->
+        </div>
+        <div id="qrcode_url_div">
+            <a id="qrcode_url" href="#" target="_blank"></a>
+        </div>
+        <div id="expires" onload="(e) => e.innerHTML = StringFormat(GetLocalizedString('expires_in.value'), 0)">
+            <!-- Expires at: <span id="expires"></span> -->
+        </div>
+        <div style="margin-top: 30px">
+            <span>Your token:</span>
+            <div style="margin-top: 15px">
+                <textarea id="token" class="transparent" style="width:100%;"></textarea>
+            </div>
+            <button class="copy-token" onclick="copyToken()"></button>
+            <button class="regenerate" onclick="regenerate()"></button>
+        </div>
+    </div>
+    <script>
+        const url = "http://phi-api.web-fly.public.090716.xyz:1221";
+        let device_code = "";
+        let expires = 0;
+        let qrcode = 0;
+
+        setInterval(async () => {
+            const d = expires - Math.round(Date.now() / 1000);
+            if (d < 0) {
+                document.getElementById("expires").innerHTML = StringFormat(GetLocalizedString("expires_in.value"), 0);
+                document.getElementById("QR").classList.add("qr-blur");
+                return;
+            }
+            document.getElementById("expires").innerHTML = StringFormat(GetLocalizedString("expires_in.value"), d);
+            if (d % 3 === 0) {
+                const response = await fetch(url + "/token/" + device_code, { method: "POST", mode: "cors", body: "Browser" });
+                const json = await response.json();
+                console.log(json);
+                if ("error" in json) { return; }
+                const tokenElement = document.getElementById("token");
+                tokenElement.value = json.sessionToken;
+                document.getElementById("QR").classList.add("qr-blur");
+                document.getElementById("expires").childNodes[1].classList.add("line-through", "red");
+                expires = 0;
+            }
+        }, 1000);
+
+        async function regenerate() {
+            document.getElementById("QR").classList.remove("qr-blur");
+            let list = document.getElementById("expires").childNodes[1].classList;
+            if (list !== undefined)
+                list.remove("line-through", "red");
+
+            const response = await fetch(url + "/login", { method: "POST", mode: "cors", body: "Browser" });
+            const json = await response.json();
+            console.log(json);
+            const qrcode_url = document.getElementById("qrcode_url");
+            qrcode_url.href = json.qrcode_url;
+            qrcode_url.innerHTML = json.qrcode_url;
+            if (qrcode === 0) {
+                qrcode = new QRCode("QR", { text: json.qrcode_url, correctLevel: QRCode.CorrectLevel.L });
+            } else {
+                qrcode.makeCode(json.qrcode_url);
+            }
+            expires = Math.round(Date.now() / 1000) + json.expires_in;
+            device_code = json.device_code;
+        }
+
+        function copyToken() {
+            const tokenElement = document.getElementById("token");
+            tokenElement.select();
+            document.execCommand('copy');
+            alert(GetLocalizedString("alert.clipboard_copied"));
+        }
+        
+        function GetLocalizedString(id) {
+            const chineseLangs = ["zh", "zh-Hans", "zh-Hans-CN", "zh-Hans-HK",
+                "zh-Hans-MO", "zh-Hans-SG", "zh-Hant", "zh-Hant-HK", "zh-Hant-MO",
+                "zh-Hant-TW", "zh-TW", "zh-HK", "zh-CN"
+            ]
+            const englishMap = {
+                "token.regenerating": "Generating...",
+                "token.fail_generate": "Failed to generate!",
+                "token.waiting_for_login": "Waiting for login...",
+                "expires_in.value": "Expires in <span>{0}</span> seconds.",
+                "static.login_url": "Login URL: ",
+                "static.button.regenerate": "Regenerate",
+                "static.button.copy_to_clipboard": "Copy Token",
+                "alert.clipboard_copied": "Token copied to clip board!"
+            };
+            const chineseMap = {
+                "token.regenerating": "产生二维码中...",
+                "token.fail_generate": "产生失败!",
+                "token.waiting_for_login": "等待登入中...",
+                "expires_in.value": "登入链接/二维码将于<span>{0}</span>秒内失效",
+                "static.login_url": "登录链接: ",
+                "static.button.regenerate": "重新产生",
+                "static.button.copy_to_clipboard": "复制令牌(Token)",
+                "alert.clipboard_copied": "已将令牌(Token)复制到剪切板!"
+            };
+            var lang = GetLang();
+            var map = chineseLangs.includes(lang) ? chineseMap : englishMap;
+            return map[id];
+        }
+        function StringFormat(template, ...args) {
+            return template.replace(/{([0-9]+)}/g, function (match, index) {
+                return typeof args[index] === "undefined" ? match : args[index];
+            });
+        }
+        function GetLang() {
+            if (navigator.languages != undefined) 
+                return navigator.languages[0]; 
+            return navigator.language;
+        }
+        regenerate();
+        Array.from(document.getElementsByClassName("regenerate")).forEach(
+            x => x.innerHTML = GetLocalizedString('static.button.regenerate')
+        );
+        Array.from(document.getElementsByClassName("copy-token")).forEach(
+            x => x.innerHTML = GetLocalizedString('static.button.copy_to_clipboard')
+        );
+        document.getElementById("token").innerHTML = GetLocalizedString('token.waiting_for_login');
+        let e = document.getElementById("qrcode_url_div");
+        e.innerHTML = GetLocalizedString('static.login_url') + e.innerHTML
+    </script>
 </body>
 </html>
